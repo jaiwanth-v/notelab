@@ -1,0 +1,167 @@
+.notes {
+  background-color: #f4f5f6;
+  border: 1px solid #eeeeee;
+  .notes-info {
+    background-color: #ffffff;
+    padding: 5px;
+    font-size: 12px;
+  }
+  $gray: #fafafa;
+  .form-control {
+    .btn.btn-primary {
+      background-color: #0071d8 !important;
+    }
+    height: 30px !important;
+    &:focus {
+      border-color: unset !important;
+      outline: unset !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+    }
+  }
+  input:focus ~ .far {
+    display: none !important;
+  }
+  input {
+    border-radius: 3px !important;
+  }
+  .d-flex {
+    display: flex;
+    padding: 14px;
+    overflow: hidden;
+  }
+  i.far {
+    background-color: #0071d8;
+    &:hover {
+      background-color: #0059b2 !important;
+    }
+    border-radius: 3px;
+    font-size: 16px;
+    padding: 5px;
+    color: #fafafa;
+    margin: 4px;
+  }
+  .svg {
+    &-1 {
+      width: 1rem;
+      height: 1rem;
+    }
+    &-white {
+      fill: white;
+    }
+  }
+
+  .flex-grow-1 {
+    flex-grow: 1;
+  }
+
+  .search-bar {
+    display: inline-flex;
+    flex-grow: 1;
+    .input-group {
+      display: flex !important;
+      flex-grow: 1;
+      input,
+      button {
+        margin-top: 2px;
+      }
+    }
+    & input {
+      &::placeholder {
+        color: darken($gray, 30%);
+        transition: all 0.1s;
+      }
+
+      &:focus,
+      & ~ button:focus {
+        max-width: 100%;
+        border-right: none;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+
+        &::placeholder {
+          color: transparent;
+        }
+      }
+    }
+
+    & button {
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      border: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    &.expand {
+      & input {
+        // max-width: 200px;
+        transition: all 0.4s;
+        background-image: url("https://www.givengain.com/res-bs4/img/search-icon.svg");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 8px) center;
+
+        &:focus {
+          max-width: 100%;
+          background-image: none;
+          border-top-right-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+
+        &:focus ~ button,
+        & ~ button:focus {
+          display: flex;
+        }
+      }
+
+      & button {
+        display: none;
+      }
+    }
+  }
+
+  .notes-list {
+    hr {
+      margin: unset !important;
+    }
+
+    .list-todo {
+      display: flex;
+      align-items: center;
+      p {
+        margin: 0 4px;
+      }
+      input {
+        margin: 0 4px 0 0;
+      }
+      input[type="checkbox"] {
+        margin-bottom: 2px;
+      }
+    }
+    .list-todo.todo-done {
+      p {
+        text-decoration: line-through;
+      }
+    }
+    .list-note {
+      p {
+        margin: unset;
+      }
+    }
+    .list-todo,
+    .list-note {
+      &:hover {
+        background-color: #c8dbf0 !important;
+      }
+      padding: 10px 14px;
+      &.active {
+        background-color: #e5e5e5;
+      }
+    }
+  }
+}

@@ -1,0 +1,123 @@
+.note-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  .workspace {
+    display: flex;
+    .markdown-body,
+    .code-mirror {
+      width: 10px;
+      min-width: 20px !important;
+      flex: 1 0 50%;
+    }
+  }
+  .workspace > * {
+    padding: 0 4px;
+  }
+  .CodeMirror {
+    height: 100vh;
+  }
+  .markdown-body {
+    zoom: 0.8;
+    word-wrap: break-word;
+    overflow-y: scroll;
+    height: calc(100vh / 0.8);
+  }
+  .CodeMirror-vscrollbar,
+  .CodeMirror-hscrollbar {
+    outline: none;
+    border: none;
+  }
+
+  .CodeMirror-vscrollbar::-webkit-scrollbar,
+  .markdown-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .CodeMirror-hscrollbar::-webkit-scrollbar,
+  .markdown-body pre::-webkit-scrollbar {
+    height: 9px;
+  }
+
+  .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+  .CodeMirror-hscrollbar::-webkit-scrollbar-track,
+  .markdown-body::-webkit-scrollbar-track,
+  .markdown-body pre::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+  .CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
+  .markdown-body::-webkit-scrollbar-thumb,
+  .markdown-body pre::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+  }
+}
+
+.null-editor {
+  height: 100vh;
+  width: 100%;
+  background-color: #e6e6e6;
+}
+
+.CodeMirror {
+  border-right: 1px solid #eeeeee;
+  &:hover {
+    cursor: text;
+  }
+  .cm-header {
+    font-weight: bold;
+  }
+  .cm-header-1 {
+    font-size: 16px;
+  }
+  .cm-header-2 {
+    font-size: 15px;
+  }
+  .cm-header-3 {
+    font-size: 13px;
+  }
+  .cm-quote {
+    color: #888;
+    background-color: rgba(128, 128, 128, 0.05);
+    padding: 5px;
+  }
+  .cm-comment {
+    color: #a50;
+    font-size: 12px;
+  }
+  span {
+    font-size: 12px;
+  }
+
+  .cm-quote,
+  .cm-string {
+    color: #888;
+  }
+  .cm-tag,
+  .cm-link {
+    color: #444;
+  }
+  .cm-m-xml,
+  .cm-bracket {
+    color: #170;
+    font-family: inherit;
+  }
+
+  .CodeMirror-fullscreen {
+    .CodeMirror-preview {
+      height: 100% !important;
+      overflow: scroll !important;
+    }
+  }
+
+  pre {
+    &.CodeMirror-placeholder {
+      color: #999;
+    }
+  }
+}

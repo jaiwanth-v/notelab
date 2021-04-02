@@ -1,0 +1,22 @@
+.App {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  overflow-x: hidden;
+  .notebooks {
+    min-width: 20px;
+    width: 250px;
+    flex: 0 0 250px;
+  }
+  .notes {
+    min-width: 20px;
+    width: 250px;
+    flex: 0 0 250px;
+  }
+  .form-control:focus {
+    border-color: unset !important;
+    outline: unset !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+}

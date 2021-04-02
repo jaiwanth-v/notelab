@@ -1,0 +1,31 @@
+.notebooks {
+  background-color: #31363f;
+  color: white;
+  .notebooks-header {
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    justify-content: space-between;
+    .notebooks-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      h5 {
+        padding: 0 10px;
+        margin: unset;
+      }
+    }
+    i.fa-plus {
+      cursor: pointer;
+    }
+  }
+  .list-notebook:hover {
+    background-color: #25292e !important;
+  }
+  .list-notebook {
+    padding: 10px 0 10px 30px;
+  }
+  .list-notebook.active {
+    background-color: #131313;
+  }
+}

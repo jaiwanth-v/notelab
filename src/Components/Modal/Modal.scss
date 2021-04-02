@@ -1,0 +1,38 @@
+.modal {
+  background: rgba(0, 0, 0, 0.6);
+}
+.modal-container {
+  position: absolute;
+  width: 60%;
+  background: #ffffff;
+  color: black;
+  left: 25%;
+  top: 20px;
+  padding: 20px;
+  z-index: 999;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-none {
+  display: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  button {
+    margin: 10px 2px;
+  }
+}
+.modal-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  p {
+    margin: 0 10px !important;
+    white-space: nowrap;
+  }
+}
