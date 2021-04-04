@@ -1,10 +1,12 @@
 import { v4 as uuid } from "uuid";
 import defaultState from "./InitialState";
 export enum Types {
-  createNote = "CREATE_NOTE",
-  deleteNote = "DELETE_NOTE",
   createNotebook = "CREATE_NOTEBOOK",
+  renameNotebook = "RENAME_NOTEBOOK",
   deleteNotebook = "DELETE_NOTEBOOK",
+  createNote = "CREATE_NOTE",
+  renameNote = "RENAME_NOTE",
+  deleteNote = "DELETE_NOTE",
   setNote = "SET_NOTE",
   setNotebook = "SET_NOTEBOOK",
   setContent = "SET_CONTENT",
@@ -30,6 +32,7 @@ export type StateType = {
   activeNotebook: string | null;
   activeNote: string | null;
   activeContent: string | null;
+  activeNoteName: string | null;
 };
 
 export function getIndex(id: string | null, array: any): number {
@@ -50,7 +53,7 @@ export const appReducer = (
   const { type, payload } = action;
 
   let updatedNotebooks = state.notebooks;
-  let { activeNote, activeNotebook, activeContent } = state;
+  let { activeNote, activeNotebook, activeContent, activeNoteName } = state;
   if (type === Types.createNotebook) {
     activeNotebook = uuid();
     activeNote = null;
@@ -65,6 +68,7 @@ export const appReducer = (
       activeNotebook,
       activeNote,
       activeContent: null,
+      activeNoteName: null,
     };
   }
 
@@ -78,6 +82,7 @@ export const appReducer = (
       activeNotebook: payload.id,
       activeNote: newActiveNote ? newActiveNote.id : null,
       activeContent: newActiveNote ? newActiveNote.content : null,
+      activeNoteName: newActiveNote ? newActiveNote.name : null,
     };
   }
 
@@ -92,6 +97,20 @@ export const appReducer = (
       ...state,
       notebooks: updatedNotebooks,
       activeContent: payload.content,
+    };
+  }
+  if (type === Types.renameNote) {
+    updatedNotebooks[notebookIdx].notes[noteIdx].name = payload.name;
+    return {
+      ...state,
+      notebooks: [...updatedNotebooks],
+    };
+  }
+  if (type === Types.renameNotebook) {
+    updatedNotebooks[notebookIdx].name = payload.name;
+    return {
+      ...state,
+      notebooks: [...updatedNotebooks],
     };
   }
   if (type === Types.toggleTodo) {
@@ -118,6 +137,8 @@ export const appReducer = (
       activeNote: payload.id,
       activeContent:
         updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].content,
+      activeNoteName:
+        updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].name,
     };
   } else if (type === Types.deleteNotebook) {
     if (payload.id === activeNotebook) {
@@ -130,6 +151,9 @@ export const appReducer = (
           activeContent = activeNote
             ? updatedNotebooks[notebookIdx - 1].notes[0].content
             : null;
+          activeNoteName = activeNote
+            ? updatedNotebooks[notebookIdx - 1].notes[0].name
+            : null;
         } else {
           activeNotebook = updatedNotebooks[notebookIdx + 1].id;
           activeNote = updatedNotebooks[notebookIdx + 1].notes.length
@@ -138,8 +162,12 @@ export const appReducer = (
           activeContent = activeNote
             ? updatedNotebooks[notebookIdx + 1].notes[0].content
             : null;
+          activeNoteName = activeNote
+            ? updatedNotebooks[notebookIdx + 1].notes[0].name
+            : null;
         }
-      } else activeNotebook = activeNote = activeContent = null;
+      } else
+        activeNotebook = activeNote = activeContent = activeNoteName = null;
     }
     updatedNotebooks = updatedNotebooks.filter(
       (notebook) => notebook.id !== payload.id
@@ -150,6 +178,7 @@ export const appReducer = (
       activeNote,
       activeNotebook,
       activeContent,
+      activeNoteName,
     };
   } else if (type === Types.createNote) {
     activeNote = uuid();
@@ -166,6 +195,7 @@ export const appReducer = (
       notebooks: updatedNotebooks,
       activeNote,
       activeContent,
+      activeNoteName: payload.name,
     };
   } else if (type === Types.deleteNote) {
     let notes = updatedNotebooks[notebookIdx].notes;
@@ -181,12 +211,19 @@ export const appReducer = (
           ? notes[notebookIdx - 1].content
           : notes[notebookIdx + 1].content
         : null;
+    activeNoteName =
+      notes.length > 1
+        ? noteIdx === notes.length - 1
+          ? notes[notebookIdx - 1].name
+          : notes[notebookIdx + 1].name
+        : null;
     updatedNotebooks[notebookIdx].notes.splice(noteIdx);
     return {
       ...state,
       notebooks: updatedNotebooks,
       activeNote,
       activeContent,
+      activeNoteName,
     };
   }
   return state;

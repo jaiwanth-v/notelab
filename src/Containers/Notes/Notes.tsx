@@ -67,7 +67,7 @@ const Notes: React.FC<Props> = () => {
                     onChange={() => toggleTodo(note.id)}
                     checked={note.done}
                   />
-                  <p>{note.name}</p>
+                  <p>{note.name ? note.name : "Untitled"}</p>
                 </div>
               ) : (
                 <div
@@ -76,7 +76,7 @@ const Notes: React.FC<Props> = () => {
                   }`}
                   onClick={() => setActiveNote(note.id)}
                 >
-                  <p>{note.name}</p>
+                  <p>{note.name ? note.name : "Untitled"}</p>
                 </div>
               )}
               <hr />

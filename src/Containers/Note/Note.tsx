@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
-import defaultText from "./defaultText";
+// import defaultText from "./defaultText";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import MarkdownViewer from "./MarkdownViewer";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType, Types } from "../../Redux/Reducer";
+import { getCursorState } from "./MarkdownHelpers/Formatting";
+import Toolbar from "./MarkdownHelpers/Toolbar";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
 
@@ -15,11 +17,12 @@ const Note: React.FC<Props> = () => {
   const activeContent: any = useSelector(
     (state: StateType) => state.activeContent
   );
-  const [markdownText, setMarkdownText] = useState(
-    activeContent ? activeContent : ""
+  const activeNoteName = useSelector(
+    (state: StateType) => state.activeNoteName
   );
+  const [cs, setCs] = useState({});
+  const cmRef = useRef();
   const dispatch = useDispatch();
-  console.log(activeContent);
   const onToggleEditMode = () => {
     const newEditModeState = !editMode;
     const newReaderModeState = newEditModeState ? false : readerMode;
@@ -33,6 +36,10 @@ const Note: React.FC<Props> = () => {
 
     setReaderMode(newReaderModeState);
     setEditMode(newEditModeState);
+  };
+
+  const updateCursorState = () => {
+    setCs(getCursorState(cmRef.current));
   };
 
   let isPreviewScrolling = useRef(false),
@@ -64,48 +71,61 @@ const Note: React.FC<Props> = () => {
     };
   }, [editorElm, previewElm]);
 
-  const editModeClassName =
-    "fas fa-pencil-alt navbar-wrapper-icon" + (editMode ? " choosen" : "");
-  const readerModeClassName =
-    "fas fa-eye navbar-wrapper-icon" + (readerMode ? " choosen" : "");
-  const previewClassName =
-    "preview " + (readerMode ? "center" : editMode ? "hide" : "");
-
   return activeContent === null ? (
     <div className="null-editor" />
   ) : (
     <div className="note-editor">
-      {/* <nav className="navbar">
-        <div className="navbar-wrapper">
+      <h3
+        className="note-header"
+        contentEditable
+        onInput={(e) =>
+          dispatch({
+            type: Types.renameNote,
+            payload: { name: e.currentTarget.textContent },
+          })
+        }
+      >
+        {activeNoteName}
+      </h3>
+      <div className="note-toolbar">
+        <Toolbar cmRef={cmRef.current} cs={cs} />
+        <div className="view-modes">
+          <i className="fas fa-user-friends" title="Start Collaboration"></i>
           <i
-            className={editModeClassName}
-            onClick={onToggleEditMode}
-            title="Edit mode"
-          ></i>
-          <i
-            className={readerModeClassName}
+            className={`fas fa-eye navbar-wrapper-icon ${
+              readerMode ? "active" : ""
+            }`}
             onClick={onToggleReaderMode}
             title="Reader mode"
           ></i>
+          <i
+            className={`fas fa-pencil-alt navbar-wrapper-icon" ${
+              editMode ? "active" : ""
+            }`}
+            onClick={onToggleEditMode}
+            title="Edit mode"
+          ></i>
         </div>
-      </nav> */}
+      </div>
       <div className="workspace">
-        <CodeMirror
-          autoScroll
-          className="code-mirror cm-m-markdown"
-          value={activeContent}
-          options={{
-            mode: "markdown",
-            lineWrapping: true,
-            lineNumbers: false,
-          }}
-          onBeforeChange={(editor, data, value) => {
-            console.log(data, value);
-            dispatch({ type: Types.setContent, payload: { content: value } });
-          }}
-          onChange={(editor, data, value) => {}}
-        />
-        <MarkdownViewer>{activeContent}</MarkdownViewer>
+        {!readerMode ? (
+          <CodeMirror
+            autoScroll
+            className="code-mirror cm-m-markdown"
+            value={activeContent}
+            editorDidMount={(editor) => (cmRef.current = editor)}
+            options={{
+              mode: "markdown",
+              lineWrapping: true,
+              lineNumbers: false,
+            }}
+            onBeforeChange={(editor, data, value) => {
+              dispatch({ type: Types.setContent, payload: { content: value } });
+            }}
+            onCursorActivity={updateCursorState}
+          />
+        ) : null}
+        {!editMode ? <MarkdownViewer>{activeContent}</MarkdownViewer> : null}
       </div>
     </div>
   );
