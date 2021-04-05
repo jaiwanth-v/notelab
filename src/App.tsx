@@ -1,19 +1,22 @@
+import React from "react";
 import { Provider } from "react-redux";
-import "./App.scss";
-import Editor from "./Containers/Note/Note";
-import Notebooks from "./Containers/Notebooks/Notebooks";
-import Notes from "./Containers/Notes/Notes";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
 import { store } from "./Redux/store";
-interface Props {}
+import Joplin from "./Containers/Joplin";
+import JoplinLive from "./Containers/JoplinLive";
+import "./App.scss";
 
-const App: React.FC<Props> = () => {
+const App: React.FC = () => {
   return (
     <div className="App">
-      <Provider store={store}>
-        <Notebooks />
-        <Notes />
-        <Editor />
-      </Provider>
+      <BrowserRouter>
+        <Provider store={store}>
+          <Switch>
+            <Route exact path="/" component={Joplin} />
+            <Route exact path="/live/:roomId" component={JoplinLive} />
+          </Switch>
+        </Provider>
+      </BrowserRouter>
     </div>
   );
 };

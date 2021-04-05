@@ -134,7 +134,7 @@
       display: flex;
       align-items: center;
       p {
-        margin: 1px 4px 0 4px;
+        margin: 0px 4px 0 4px;
       }
       input {
         margin: 0 4px 0 0;
@@ -145,6 +145,7 @@
     }
     .list-todo.todo-done {
       p {
+        opacity: 0.5;
         text-decoration: line-through;
       }
     }

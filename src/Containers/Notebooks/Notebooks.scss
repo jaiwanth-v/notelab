@@ -1,7 +1,7 @@
 .notebooks {
   background-color: #31363f;
-  color: white;
   .notebooks-header {
+    color: white;
     display: flex;
     padding: 10px;
     align-items: center;
@@ -23,6 +23,7 @@
     background-color: #25292e !important;
   }
   .list-notebook {
+    color: white;
     padding: 10px 0 10px 30px;
   }
   .list-notebook.active {

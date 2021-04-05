@@ -29,6 +29,7 @@ type Notebook = {
 
 export type StateType = {
   notebooks: Notebook[];
+  activeNotes?: Note[];
   activeNotebook: string | null;
   activeNote: string | null;
   activeContent: string | null;

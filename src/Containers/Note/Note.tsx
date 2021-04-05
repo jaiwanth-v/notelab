@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
 // import defaultText from "./defaultText";
 import { Controlled as CodeMirror } from "react-codemirror2";
-
 import { useDispatch, useSelector } from "react-redux";
 import { StateType, Types } from "../../Redux/Reducer";
 import { getCursorState } from "./MarkdownHelpers/Formatting";
 import Toolbar from "./MarkdownHelpers/Toolbar";
 import MarkdownViewer from "../../Components/MarkdownViewer";
+import Dialog from "../../Components/Dialog/Dialog";
+import axios from "axios";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
 
@@ -22,8 +23,11 @@ const Note: React.FC<Props> = () => {
     (state: StateType) => state.activeNoteName
   );
   const activeNote = useSelector((state: StateType) => state.activeNote);
+
   const [cs, setCs] = useState({});
   const [showToolbar, setToolbar] = useState(false); //to trigger a rerender on editor mount
+  const [showCollab, setCollab] = useState(false);
+
   const cmRef = useRef();
 
   const dispatch = useDispatch();
@@ -37,13 +41,34 @@ const Note: React.FC<Props> = () => {
   const onToggleReaderMode = () => {
     const newReaderModeState = !readerMode;
     const newEditModeState = newReaderModeState ? false : editMode;
-
     setReaderMode(newReaderModeState);
     setEditMode(newEditModeState);
   };
 
   const updateCursorState = () => {
     setCs(getCursorState(cmRef.current));
+  };
+
+  const startCollaboration = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      await axios.post(`http://localhost:1234/${activeNote}`, {
+        content: activeContent,
+      });
+      const newWindow = window.open(
+        `http://localhost:3000/live/${activeNote}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+      if (newWindow) newWindow.opener = null;
+    } catch (err) {
+      alert("Some error occured please try later");
+      console.log("Error");
+    }
+  };
+
+  const closeCollab = () => {
+    setCollab(false);
   };
 
   let isPreviewScrolling = useRef(false),
@@ -92,12 +117,23 @@ const Note: React.FC<Props> = () => {
       >
         {activeNoteName}
       </h3>
+      <Dialog visible={showCollab} closeDialog={closeCollab}>
+        <h2> Live Collaboration </h2>
+        <h5> You can invite people to this note to collaborate with you. </h5>
+        <button className="btn btn-light" onClick={startCollaboration}>
+          <i className="far fa-play-circle"></i> Start Session{" "}
+        </button>
+      </Dialog>
       <div className="note-toolbar">
         {!readerMode && showToolbar && (
           <Toolbar cmRef={cmRef.current} cs={cs} />
         )}
         <div className="view-modes">
-          <i className="fas fa-user-friends" title="Start Collaboration"></i>
+          <i
+            onClick={() => setCollab(true)}
+            className="fas fa-user-friends"
+            title="Start Collaboration"
+          ></i>
           <i
             className={`fas fa-eye navbar-wrapper-icon ${
               readerMode ? "active" : ""

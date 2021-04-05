@@ -1,0 +1,53 @@
+.cd-popup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  display: none;
+}
+.cd-popup.is-visible {
+  opacity: 1;
+  z-index: 3;
+  display: block;
+}
+
+.cd-popup-container {
+  position: relative;
+  padding: 3px 30px 10px 30px;
+  width: 90%;
+  max-width: 450px;
+  margin: 16em auto;
+  background: #fff;
+  border-radius: 0.25em 0.25em 0.4em 0.4em;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  .btn {
+    margin-top: 20px;
+  }
+}
+
+.cd-popup-container .cd-popup-close {
+  position: absolute;
+  cursor: pointer;
+  top: 2px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+}
+.cd-popup-container .cd-popup-close::before,
+.cd-popup-container .cd-popup-close {
+  position: absolute;
+  top: 6px;
+}
+
+.is-visible .cd-popup-container {
+  -webkit-transform: translateY(0);
+  -moz-transform: translateY(0);
+  -ms-transform: translateY(0);
+  -o-transform: translateY(0);
+  transform: translateY(0);
+  -webkit-transform: translate3d(0, 0, 0);
+}

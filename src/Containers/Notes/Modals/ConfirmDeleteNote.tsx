@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
 import { useDispatch } from "react-redux";
-import Modal from "../../../Components/Modal/Modal";
+import Dialog from "../../../Components/Dialog/Dialog";
 import { Types } from "../../../Redux/Reducer";
 
 interface Props {
@@ -23,21 +23,16 @@ const ConfirmDeleteNote: React.FC<Props> = ({ show, closeModal, id, name }) => {
   };
 
   return (
-    <Modal show={show}>
-      <div className="modal-form">
-        <h5>Are you sure you want to delete note "{name}"?</h5>
-      </div>
+    <Dialog visible={show} closeDialog={closeModal}>
+      <h5 style={{ marginTop: "15px" }}>
+        Are you sure you want to delete the note "{name}"?
+      </h5>
       <form onSubmit={handleSubmit}>
-        <div className="modal-buttons">
-          <button className="btn btn-light" type="submit">
-            Yes
-          </button>
-          <button className="btn btn-light" onClick={closeModal} type="button">
-            Cancel
-          </button>
-        </div>
+        <button className="btn btn-danger" type="submit">
+          Delete
+        </button>
       </form>
-    </Modal>
+    </Dialog>
   );
 };
 

@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { applyFormat } from "./Formatting";
 
 interface Props {
   cmRef: any;
-  cs: any;
+  cs?: any;
 }
 
 const { FORMATS }: any = require("./Formatting");
@@ -21,7 +21,7 @@ const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
           <i
             onClick={(e) => toggleFormat(format, e)}
             key={format}
-            className={`toolbar-headings ${cs[format] ? "active" : ""}`}
+            className={`toolbar-headings ${cs && cs[format] ? "active" : ""}`}
             title={format}
           >
             {format.toUpperCase()}
@@ -32,7 +32,9 @@ const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
           <i
             onClick={(e) => toggleFormat(format, e)}
             key={format}
-            className={`${FORMATS[format].icon} ${cs[format] ? "active" : ""}`}
+            className={`${FORMATS[format].icon} ${
+              cs && cs[format] ? "active" : ""
+            }`}
             title={format}
           ></i>
         );
@@ -42,4 +44,4 @@ const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
   return <div className="toolbar">{renderToolbar()}</div>;
 };
 
-export default Toolbar;
+export default memo(Toolbar);

@@ -40,7 +40,7 @@ const RenameNoteModal: React.FC<Props> = ({ show, closeModal, id }) => {
           />
         </div>
         <p style={{ marginTop: "4px", textAlign: "end", fontSize: "14px" }}>
-          (You can also rename from note's header)
+          (You can also rename from the note's header)
         </p>
         <div className="modal-buttons">
           <button className="btn btn-light" type="submit">
