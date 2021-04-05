@@ -6,13 +6,11 @@ interface Props {
 }
 
 const Modal: React.FC<Props> = ({ children, show }) => {
-  const showHideClassName = show ? "modal d-block" : "modal d-none";
-
-  return (
-    <div className={showHideClassName}>
+  return show ? (
+    <div className="modal d-block">
       <div className="modal-container">{children}</div>
     </div>
-  );
+  ) : null;
 };
 
 export default Modal;

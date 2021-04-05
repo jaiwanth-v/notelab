@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
 // import defaultText from "./defaultText";
 import { Controlled as CodeMirror } from "react-codemirror2";
-import MarkdownViewer from "./MarkdownViewer";
+
 import { useDispatch, useSelector } from "react-redux";
 import { StateType, Types } from "../../Redux/Reducer";
 import { getCursorState } from "./MarkdownHelpers/Formatting";
 import Toolbar from "./MarkdownHelpers/Toolbar";
+import MarkdownViewer from "../../Components/MarkdownViewer";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
 
@@ -20,8 +21,11 @@ const Note: React.FC<Props> = () => {
   const activeNoteName = useSelector(
     (state: StateType) => state.activeNoteName
   );
+  const activeNote = useSelector((state: StateType) => state.activeNote);
   const [cs, setCs] = useState({});
+  const [showToolbar, setToolbar] = useState(false); //to trigger a rerender on editor mount
   const cmRef = useRef();
+
   const dispatch = useDispatch();
   const onToggleEditMode = () => {
     const newEditModeState = !editMode;
@@ -78,17 +82,20 @@ const Note: React.FC<Props> = () => {
       <h3
         className="note-header"
         contentEditable
+        spellCheck={false}
         onInput={(e) =>
           dispatch({
             type: Types.renameNote,
-            payload: { name: e.currentTarget.textContent },
+            payload: { name: e.currentTarget.textContent, id: activeNote },
           })
         }
       >
         {activeNoteName}
       </h3>
       <div className="note-toolbar">
-        <Toolbar cmRef={cmRef.current} cs={cs} />
+        {!readerMode && showToolbar && (
+          <Toolbar cmRef={cmRef.current} cs={cs} />
+        )}
         <div className="view-modes">
           <i className="fas fa-user-friends" title="Start Collaboration"></i>
           <i
@@ -113,11 +120,15 @@ const Note: React.FC<Props> = () => {
             autoScroll
             className="code-mirror cm-m-markdown"
             value={activeContent}
-            editorDidMount={(editor) => (cmRef.current = editor)}
+            editorDidMount={(editor) => {
+              cmRef.current = editor;
+              setToolbar(true);
+            }}
             options={{
               mode: "markdown",
               lineWrapping: true,
               lineNumbers: false,
+              autofocus: true,
             }}
             onBeforeChange={(editor, data, value) => {
               dispatch({ type: Types.setContent, payload: { content: value } });

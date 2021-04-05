@@ -1,9 +1,10 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./Notes.scss";
 import ResizeBar from "../../Components/ResizeBar/ResizeBar";
 import { useDispatch, useSelector } from "react-redux";
 import { getIndex, StateType, Types } from "../../Redux/Reducer";
-import Modal from "../../Components/Modal/Modal";
+import CreateNoteModal from "./Modals/CreateNoteModal";
+import NotesContextMenu from "./NotesContextMenu";
 interface Props {}
 
 const Notes: React.FC<Props> = () => {
@@ -16,20 +17,17 @@ const Notes: React.FC<Props> = () => {
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
   const [noteType, setNoteType] = useState("");
-  const [noteName, setNoteName] = useState("");
-
+  const outerRef: any = useRef();
   const setActiveNote = (id: string) => {
     if (id !== activeNote) dispatch({ type: Types.setNote, payload: { id } });
   };
-  const createNote = (e: FormEvent<HTMLFormElement>) => {
+  const createNote = (noteName: string) => {
     if (activeNotebook === null) return;
-    e.preventDefault();
     if (!noteName) return;
     dispatch({
       type: Types.createNote,
       payload: { name: noteName, isTodo: noteType === "todo" },
     });
-    setNoteName("");
     closeModal();
   };
   const openModal = (text: string) => {
@@ -40,10 +38,6 @@ const Notes: React.FC<Props> = () => {
   const closeModal = () => {
     setModal(false);
   };
-  const handleModalChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNoteName(e.target.value);
-  };
-
   const toggleTodo = (id: string) => {
     dispatch({ type: Types.toggleTodo, payload: { id } });
   };
@@ -52,12 +46,13 @@ const Notes: React.FC<Props> = () => {
     const notes = notebookIdx !== -1 ? notebooks[notebookIdx].notes : null;
     if (notes) {
       return (
-        <div className="notes-list">
+        <div className="notes-list" ref={outerRef}>
           {notes.map((note) => (
             <div key={note.id}>
               {note.isTodo ? (
                 <div
-                  className={`list-todo ${
+                  id={note.id}
+                  className={`list-todo notes-list-item ${
                     activeNote === note.id ? "active" : ""
                   } ${note.done ? "todo-done" : ""} `}
                   onClick={() => setActiveNote(note.id)}
@@ -71,7 +66,8 @@ const Notes: React.FC<Props> = () => {
                 </div>
               ) : (
                 <div
-                  className={`list-note ${
+                  id={note.id}
+                  className={`list-note notes-list-item ${
                     activeNote === note.id ? "active" : ""
                   }`}
                   onClick={() => setActiveNote(note.id)}
@@ -124,32 +120,12 @@ const Notes: React.FC<Props> = () => {
           </p>
         ) : null}
         <NotesList />
-        <Modal show={modal}>
-          <form onSubmit={createNote}>
-            <div className="modal-form">
-              <p>{noteType === "todo" ? "Todo Name: " : "Note Name: "}</p>
-              <input
-                type="text"
-                autoFocus
-                value={noteName}
-                onChange={handleModalChange}
-                className="form-control"
-              />
-            </div>
-            <div className="modal-buttons">
-              <button className="btn btn-light" type="submit">
-                OK
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={closeModal}
-                type="button"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
+        <NotesContextMenu outerRef={outerRef} />
+        <CreateNoteModal
+          show={modal}
+          closeModal={closeModal}
+          createNote={createNote}
+        />
 
         <svg
           xmlns="http://www.w3.org/2000/svg"

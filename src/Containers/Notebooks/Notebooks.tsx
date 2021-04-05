@@ -1,9 +1,10 @@
-import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./Notebooks.scss";
 import ResizeBar from "../../Components/ResizeBar/ResizeBar";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType, Types } from "../../Redux/Reducer";
-import Modal from "../../Components/Modal/Modal";
+import NotebooksContextMenu from "./NotebooksContextMenu";
+import CreateNotebookModal from "./Modals/CreateNotebookModal";
 interface Props {}
 
 const Notebooks: React.FC<Props> = () => {
@@ -11,28 +12,23 @@ const Notebooks: React.FC<Props> = () => {
   const activeNotebook = useSelector(
     (state: StateType) => state.activeNotebook
   );
-  const [notebookName, setNotebookName] = useState("");
   const [modal, setModal] = useState(false);
   const dispatch = useDispatch();
-  const inputRef: any = useRef(null);
-  const createNotebook = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const outerRef = useRef(null);
+
+  const createNotebook = (notebookName: string) => {
     if (!notebookName) return;
     dispatch({
       type: "CREATE_NOTEBOOK",
       payload: { name: notebookName },
     });
     closeModal();
-    setNotebookName("");
   };
   const closeModal = () => {
     setModal(false);
   };
   const openModal = () => {
     setModal(true);
-  };
-  const handleModalChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNotebookName(e.target.value);
   };
 
   const setActiveNotebook = (id: string) => {
@@ -50,44 +46,27 @@ const Notebooks: React.FC<Props> = () => {
           </div>
           <i className="fas fa-plus" onClick={openModal}></i>
         </header>
-        <Modal show={modal}>
-          <form onSubmit={createNotebook}>
-            <div className="modal-form">
-              <p>Notebook Title:</p>
-              <input
-                ref={inputRef}
-                type="text"
-                value={notebookName}
-                onChange={handleModalChange}
-                className="form-control"
-              />
-            </div>
-            <div className="modal-buttons">
-              <button className="btn btn-light" type="submit">
-                OK
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={closeModal}
-                type="button"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
 
-        {notebooks.map((notebook) => (
-          <div
-            key={notebook.id}
-            className={`list-notebook ${
-              activeNotebook === notebook.id ? "active" : ""
-            }`}
-            onClick={() => setActiveNotebook(notebook.id)}
-          >
-            {notebook.name}
-          </div>
-        ))}
+        <div className="notebooks-list" ref={outerRef}>
+          <NotebooksContextMenu outerRef={outerRef} />
+          <CreateNotebookModal
+            closeModal={closeModal}
+            createNotebook={createNotebook}
+            show={modal}
+          />
+          {notebooks.map((notebook) => (
+            <div
+              id={notebook.id}
+              key={notebook.id}
+              className={`list-notebook ${
+                activeNotebook === notebook.id ? "active" : ""
+              }`}
+              onClick={() => setActiveNotebook(notebook.id)}
+            >
+              {notebook.name}
+            </div>
+          ))}
+        </div>
       </div>
       <ResizeBar index={0} />
     </>

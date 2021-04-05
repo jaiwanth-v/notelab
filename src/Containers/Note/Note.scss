@@ -14,8 +14,8 @@
     display: flex;
     justify-content: space-between;
     i {
-      font-size: 18px;
-      padding: 15px;
+      font-size: 16px;
+      padding: 14px;
       cursor: pointer;
       &:hover {
         background-color: #cadaf0;
@@ -25,9 +25,9 @@
       }
       &.toolbar-headings {
         font-style: unset !important;
-        font-size: 18px;
-        padding: 13px;
-        font-weight: 600;
+        font-size: 18.5px;
+        padding: 10px;
+        font-weight: 550;
       }
     }
   }
@@ -45,14 +45,15 @@
     padding: 0 4px;
   }
   .CodeMirror {
-    height: 100vh;
+    height: calc(100vh - 100px);
   }
   .markdown-body {
     font-size: unset !important;
     word-wrap: break-word;
     overflow-y: scroll;
     padding-top: 7px;
-    height: calc(100vh / 0.8);
+    height: calc(100vh - 100px);
+    padding-bottom: 100px;
   }
   .CodeMirror-vscrollbar,
   .CodeMirror-hscrollbar {
@@ -61,6 +62,9 @@
   }
   .CodeMirror-scroll {
     padding-top: 7px;
+  }
+  .CodeMirror-lines {
+    padding-bottom: 50px;
   }
   .CodeMirror-vscrollbar::-webkit-scrollbar,
   .markdown-body::-webkit-scrollbar {

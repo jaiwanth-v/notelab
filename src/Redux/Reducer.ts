@@ -100,14 +100,19 @@ export const appReducer = (
     };
   }
   if (type === Types.renameNote) {
-    updatedNotebooks[notebookIdx].notes[noteIdx].name = payload.name;
+    let renameNoteIdx = getIndex(
+      payload.id,
+      updatedNotebooks[notebookIdx].notes
+    );
+    updatedNotebooks[notebookIdx].notes[renameNoteIdx].name = payload.name;
     return {
       ...state,
       notebooks: [...updatedNotebooks],
     };
   }
   if (type === Types.renameNotebook) {
-    updatedNotebooks[notebookIdx].name = payload.name;
+    let renameNotebookIdx = getIndex(payload.id, updatedNotebooks);
+    updatedNotebooks[renameNotebookIdx].name = payload.name;
     return {
       ...state,
       notebooks: [...updatedNotebooks],
@@ -199,24 +204,17 @@ export const appReducer = (
     };
   } else if (type === Types.deleteNote) {
     let notes = updatedNotebooks[notebookIdx].notes;
-    activeNote =
-      notes.length > 1
-        ? noteIdx === notes.length - 1
-          ? notes[notebookIdx - 1].id
-          : notes[notebookIdx + 1].id
-        : null;
-    activeContent =
-      notes.length > 1
-        ? noteIdx === notes.length - 1
-          ? notes[notebookIdx - 1].content
-          : notes[notebookIdx + 1].content
-        : null;
-    activeNoteName =
-      notes.length > 1
-        ? noteIdx === notes.length - 1
-          ? notes[notebookIdx - 1].name
-          : notes[notebookIdx + 1].name
-        : null;
+    if (notes.length > 1) {
+      if (noteIdx === notes.length - 1) {
+        activeNote = notes[noteIdx - 1].id;
+        activeContent = notes[noteIdx - 1].content;
+        activeNoteName = notes[noteIdx - 1].name;
+      } else {
+        activeNote = notes[noteIdx + 1].id;
+        activeContent = notes[noteIdx + 1].content;
+        activeNoteName = notes[noteIdx + 1].name;
+      }
+    } else activeNote = activeContent = activeNoteName = null;
     updatedNotebooks[notebookIdx].notes.splice(noteIdx);
     return {
       ...state,
