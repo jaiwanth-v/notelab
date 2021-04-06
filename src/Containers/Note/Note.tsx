@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
-// import defaultText from "./defaultText";
-import { Controlled as CodeMirror } from "react-codemirror2";
+import { UnControlled as CodeMirror } from "react-codemirror2";
 import { useDispatch, useSelector } from "react-redux";
-import { StateType, Types } from "../../Redux/Reducer";
+import { StateType, sync, Types, url, token } from "../../Redux/Reducer";
 import { getCursorState } from "./MarkdownHelpers/Formatting";
 import Toolbar from "./MarkdownHelpers/Toolbar";
 import MarkdownViewer from "../../Components/MarkdownViewer";
@@ -19,8 +18,8 @@ const Note: React.FC<Props> = () => {
   const activeContent: any = useSelector(
     (state: StateType) => state.activeContent
   );
-  const activeNoteName = useSelector(
-    (state: StateType) => state.activeNoteName
+  const activeNoteTitle = useSelector(
+    (state: StateType) => state.activeNoteTitle
   );
   const activeNote = useSelector((state: StateType) => state.activeNote);
 
@@ -47,6 +46,19 @@ const Note: React.FC<Props> = () => {
 
   const updateCursorState = () => {
     setCs(getCursorState(cmRef.current));
+  };
+
+  const handleChange = (editor: any, data: any, value: string) => {
+    if (sync) {
+      axios.put(
+        `${url}/notes/${activeNote}`,
+        {
+          body: value,
+        },
+        { params: { token } }
+      );
+    }
+    dispatch({ type: Types.setContent, payload: { body: value } });
   };
 
   const startCollaboration = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -107,15 +119,16 @@ const Note: React.FC<Props> = () => {
       <h3
         className="note-header"
         contentEditable
+        suppressContentEditableWarning
         spellCheck={false}
-        onInput={(e) =>
+        onBlur={(e) => {
           dispatch({
             type: Types.renameNote,
-            payload: { name: e.currentTarget.textContent, id: activeNote },
-          })
-        }
+            payload: { title: e.currentTarget.textContent, id: activeNote },
+          });
+        }}
       >
-        {activeNoteName}
+        {activeNoteTitle}
       </h3>
       <Dialog visible={showCollab} closeDialog={closeCollab}>
         <h2> Live Collaboration </h2>
@@ -166,9 +179,7 @@ const Note: React.FC<Props> = () => {
               lineNumbers: false,
               autofocus: true,
             }}
-            onBeforeChange={(editor, data, value) => {
-              dispatch({ type: Types.setContent, payload: { content: value } });
-            }}
+            onChange={handleChange}
             onCursorActivity={updateCursorState}
           />
         ) : null}

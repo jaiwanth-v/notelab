@@ -2,9 +2,19 @@ import React, { useRef, useState } from "react";
 import "./Notes.scss";
 import ResizeBar from "../../Components/ResizeBar/ResizeBar";
 import { useDispatch, useSelector } from "react-redux";
-import { getIndex, StateType, Types } from "../../Redux/Reducer";
+import {
+  getIndex,
+  StateType,
+  sync,
+  token,
+  Types,
+  url,
+} from "../../Redux/Reducer";
 import CreateNoteModal from "./Modals/CreateNoteModal";
 import NotesContextMenu from "./NotesContextMenu";
+import { Note } from "../../Redux/Reducer";
+import axios from "axios";
+import uuid from "../../Utils/randomIdGenerator";
 interface Props {}
 
 const Notes: React.FC<Props> = () => {
@@ -13,20 +23,43 @@ const Notes: React.FC<Props> = () => {
     (state: StateType) => state.activeNotebook
   );
   const activeNote = useSelector((state: StateType) => state.activeNote);
+
   const notebookIdx = getIndex(activeNotebook, notebooks);
+
+  let activeNotes: any =
+    notebookIdx !== -1 ? notebooks[notebookIdx].notes : null;
+
+  if (window.localStorage.getItem("joplin-sync") === "on") {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    activeNotes = useSelector((state: StateType) => state.activeNotes);
+  }
+
   const dispatch = useDispatch();
+
   const [modal, setModal] = useState(false);
   const [noteType, setNoteType] = useState("");
   const outerRef: any = useRef();
+
   const setActiveNote = (id: string) => {
     if (id !== activeNote) dispatch({ type: Types.setNote, payload: { id } });
   };
   const createNote = (noteName: string) => {
     if (activeNotebook === null) return;
     if (!noteName) return;
+    const newId = uuid();
+    if (sync) {
+      axios.post(`${url}/notes`, {
+        title: noteName,
+        id: newId,
+        is_todo: noteType === "todo",
+        todo_completed: false,
+        body: "",
+        parent_id: activeNotebook,
+      });
+    }
     dispatch({
       type: Types.createNote,
-      payload: { name: noteName, isTodo: noteType === "todo" },
+      payload: { title: noteName, is_todo: noteType === "todo", id: newId },
     });
     closeModal();
   };
@@ -38,31 +71,44 @@ const Notes: React.FC<Props> = () => {
   const closeModal = () => {
     setModal(false);
   };
-  const toggleTodo = (id: string) => {
+  const toggleTodo = (id: string, todo_completed: boolean) => {
+    if (sync) {
+      axios.put(
+        `${url}/notes/${id}`,
+        {
+          todo_completed: !todo_completed,
+        },
+        { params: { token } }
+      );
+    }
     dispatch({ type: Types.toggleTodo, payload: { id } });
   };
 
   const NotesList = () => {
-    const notes = notebookIdx !== -1 ? notebooks[notebookIdx].notes : null;
-    if (notes) {
+    if (activeNotes) {
+      activeNotes.sort(
+        (a: Note, b: Note) =>
+          Number(a.todo_completed) - Number(b.todo_completed)
+      );
       return (
         <div className="notes-list" ref={outerRef}>
-          {notes.map((note) => (
+          {activeNotes.map((note: Note) => (
             <div key={note.id}>
-              {note.isTodo ? (
+              {note.is_todo ? (
                 <div
                   id={note.id}
                   className={`list-todo notes-list-item ${
                     activeNote === note.id ? "active" : ""
-                  } ${note.done ? "todo-done" : ""} `}
+                  } ${note.todo_completed ? "todo-done" : ""} `}
                   onClick={() => setActiveNote(note.id)}
                 >
                   <input
                     type="checkbox"
-                    onChange={() => toggleTodo(note.id)}
-                    checked={note.done}
+                    onChange={(e) => toggleTodo(note.id, note.todo_completed)}
+                    onClick={(e) => e.stopPropagation()}
+                    checked={note.todo_completed}
                   />
-                  <p>{note.name ? note.name : "Untitled"}</p>
+                  <p>{note.title ? note.title : "Untitled"}</p>
                 </div>
               ) : (
                 <div
@@ -72,7 +118,7 @@ const Notes: React.FC<Props> = () => {
                   }`}
                   onClick={() => setActiveNote(note.id)}
                 >
-                  <p>{note.name ? note.name : "Untitled"}</p>
+                  <p>{note.title ? note.title : "Untitled"}</p>
                 </div>
               )}
               <hr />
@@ -114,7 +160,7 @@ const Notes: React.FC<Props> = () => {
           <p className="notes-info">
             There is currently no notebook. Create one by clicking on "+" icon
           </p>
-        ) : !notebooks[notebookIdx].notes.length ? (
+        ) : activeNotes && !activeNotes.length ? (
           <p className="notes-info">
             No notes in here. Create one by clicking on "Note" or "Todo" icon
           </p>

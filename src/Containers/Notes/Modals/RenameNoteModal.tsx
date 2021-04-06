@@ -1,7 +1,8 @@
+import axios from "axios";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { useDispatch } from "react-redux";
 import Modal from "../../../Components/Modal/Modal";
-import { Types } from "../../../Redux/Reducer";
+import { sync, token, Types, url } from "../../../Redux/Reducer";
 
 interface Props {
   show: boolean;
@@ -18,9 +19,16 @@ const RenameNoteModal: React.FC<Props> = ({ show, closeModal, id }) => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (sync) {
+      axios.put(
+        `${url}/notes/${id}`,
+        { title: noteName },
+        { params: { token } }
+      );
+    }
     dispatch({
       type: Types.renameNote,
-      payload: { id, name: noteName },
+      payload: { id, title: noteName },
     });
     setNoteName("");
     closeModal();

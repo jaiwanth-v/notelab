@@ -1,9 +1,9 @@
-import { v4 as uuid } from "uuid";
+import uuid from "../Utils/randomIdGenerator";
 
 const defaultState = {
   notebooks: [
     {
-      name: "Welcome",
+      title: "Welcome",
       id: uuid(),
       notes: [],
     },
@@ -11,7 +11,7 @@ const defaultState = {
   activeNote: null,
   activeNotebook: null,
   activeContent: null,
-  activeNoteName: null,
+  activeNoteTitle: null,
 };
 
 export default defaultState;

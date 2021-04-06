@@ -7,7 +7,6 @@ import { useParams } from "react-router-dom";
 
 import MarkdownViewer from "../../Components/MarkdownViewer";
 import "./CodeMirrorLive.scss";
-import Toolbar from "../Note/MarkdownHelpers/Toolbar";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
 
@@ -15,13 +14,12 @@ interface Props {
   userName?: string;
 }
 
-const CodeMirrorEditor: React.FC<Props> = ({ userName = "Jaiwanth" }) => {
+const CodeMirrorEditor: React.FC<Props> = ({ userName = "R" }) => {
   const [codeMirrorText, setCodeMirrorText] = useState("");
   const codeMirrorRef = useRef();
 
   const { roomId } = useParams<{ roomId: string }>();
   const handleChange = (value: string) => {
-    console.log("inside handle change: ", value);
     setCodeMirrorText(value);
   };
   useEffect(() => {
@@ -42,7 +40,7 @@ const CodeMirrorEditor: React.FC<Props> = ({ userName = "Jaiwanth" }) => {
     const yText = ydoc.getText(`codemirror`);
 
     wsProvider.awareness.setLocalStateField("user", {
-      name: userName,
+      name: "R",
       color: "#ffaabb",
     });
     const _codemirrorBinding = new CodemirrorBinding(

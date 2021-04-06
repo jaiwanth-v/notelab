@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import defaultState from "./InitialState";
 export enum Types {
   createNotebook = "CREATE_NOTEBOOK",
@@ -11,18 +10,19 @@ export enum Types {
   setNotebook = "SET_NOTEBOOK",
   setContent = "SET_CONTENT",
   toggleTodo = "TOGGLE_TODO",
+  populateState = "POPULATE_STATE",
 }
 
-type Note = {
-  name: string;
+export type Note = {
+  title: string;
   id: string;
-  isTodo: boolean;
-  done: boolean;
-  content: string;
+  is_todo: boolean;
+  todo_completed: boolean;
+  body: string;
 };
 
 type Notebook = {
-  name: string;
+  title: string;
   id: string;
   notes: Note[];
 };
@@ -33,8 +33,12 @@ export type StateType = {
   activeNotebook: string | null;
   activeNote: string | null;
   activeContent: string | null;
-  activeNoteName: string | null;
+  activeNoteTitle: string | null;
 };
+
+export const sync = window.localStorage.getItem("joplin-sync") === "on";
+export const token = window.localStorage.getItem("joplin-token");
+export const url = window.localStorage.getItem("joplin-url");
 
 export function getIndex(id: string | null, array: any): number {
   if (!id) return -1;
@@ -54,26 +58,48 @@ export const appReducer = (
   const { type, payload } = action;
 
   let updatedNotebooks = state.notebooks;
-  let { activeNote, activeNotebook, activeContent, activeNoteName } = state;
+  let { activeNote, activeNotebook, activeContent, activeNoteTitle } = state;
+  let { activeNotes }: any = state;
+  if (type === Types.populateState) {
+    return {
+      ...state,
+      notebooks: payload.notebooks,
+      activeNotes: payload.activeNotes,
+      activeContent: payload.activeContent,
+      activeNote: payload.activeNote,
+      activeNotebook: payload.activeNotebook,
+      activeNoteTitle: payload.activeNoteTitle,
+    };
+  }
   if (type === Types.createNotebook) {
-    activeNotebook = uuid();
     activeNote = null;
     updatedNotebooks.push({
-      id: activeNotebook,
-      name: payload.name,
+      id: payload.id,
+      title: payload.title,
       notes: [],
     });
     return {
       ...state,
       notebooks: updatedNotebooks,
-      activeNotebook,
+      activeNotebook: payload.id,
       activeNote,
+      activeNotes: [],
       activeContent: null,
-      activeNoteName: null,
+      activeNoteTitle: null,
     };
   }
-
   if (type === Types.setNotebook) {
+    if (sync) {
+      let activeNotes: Note[] = [];
+      activeNotes = payload.activeNotes;
+      return {
+        ...state,
+        activeNotes,
+        activeNotebook: payload.id,
+        activeNote: activeNotes.length ? activeNotes[0].id : null,
+        activeNoteTitle: activeNotes.length ? activeNotes[0].title : null,
+      };
+    }
     let updateNotebookIdx = getIndex(payload.id, updatedNotebooks);
     let newActiveNote = updatedNotebooks[updateNotebookIdx].notes.length
       ? updatedNotebooks[updateNotebookIdx].notes[0]
@@ -82,30 +108,43 @@ export const appReducer = (
       ...state,
       activeNotebook: payload.id,
       activeNote: newActiveNote ? newActiveNote.id : null,
-      activeContent: newActiveNote ? newActiveNote.content : null,
-      activeNoteName: newActiveNote ? newActiveNote.name : null,
+      activeContent: newActiveNote ? newActiveNote.body : null,
+      activeNoteTitle: newActiveNote ? newActiveNote.title : null,
     };
   }
 
   let notebookIdx = getIndex(activeNotebook, state.notebooks);
   let noteIdx =
     notebookIdx !== -1
-      ? getIndex(activeNote, state.notebooks[notebookIdx].notes)
+      ? getIndex(
+          activeNote,
+          sync ? activeNotes : state.notebooks[notebookIdx].notes
+        )
       : -1;
+
   if (type === Types.setContent) {
-    updatedNotebooks[notebookIdx].notes[noteIdx].content = payload.content;
+    if (!sync) updatedNotebooks[notebookIdx].notes[noteIdx].body = payload.body;
+
     return {
       ...state,
       notebooks: updatedNotebooks,
-      activeContent: payload.content,
+      activeContent: payload.body,
     };
   }
   if (type === Types.renameNote) {
     let renameNoteIdx = getIndex(
       payload.id,
-      updatedNotebooks[notebookIdx].notes
+      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
     );
-    updatedNotebooks[notebookIdx].notes[renameNoteIdx].name = payload.name;
+    if (sync) {
+      activeNotes[renameNoteIdx].title = payload.title;
+      return {
+        ...state,
+        activeNotes: [...activeNotes],
+        activeNoteTitle: payload.title,
+      };
+    }
+    updatedNotebooks[notebookIdx].notes[renameNoteIdx].title = payload.title;
     return {
       ...state,
       notebooks: [...updatedNotebooks],
@@ -113,7 +152,7 @@ export const appReducer = (
   }
   if (type === Types.renameNotebook) {
     let renameNotebookIdx = getIndex(payload.id, updatedNotebooks);
-    updatedNotebooks[renameNotebookIdx].name = payload.name;
+    updatedNotebooks[renameNotebookIdx].title = payload.title;
     return {
       ...state,
       notebooks: [...updatedNotebooks],
@@ -122,12 +161,19 @@ export const appReducer = (
   if (type === Types.toggleTodo) {
     let toggledNoteIdx = getIndex(
       payload.id,
-      updatedNotebooks[notebookIdx].notes
+      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
     );
+
+    if (sync) {
+      activeNotes[toggledNoteIdx].todo_completed = !activeNotes[toggledNoteIdx]
+        .todo_completed;
+      return { ...state, activeNotes: [...activeNotes] };
+    }
+
     updatedNotebooks[notebookIdx].notes[
       toggledNoteIdx
-    ].done = !updatedNotebooks[notebookIdx].notes[toggledNoteIdx].done;
-    console.log(updatedNotebooks[notebookIdx].notes[toggledNoteIdx]);
+    ].todo_completed = !updatedNotebooks[notebookIdx].notes[toggledNoteIdx]
+      .todo_completed;
     return {
       ...state,
       notebooks: [...updatedNotebooks],
@@ -136,93 +182,89 @@ export const appReducer = (
   if (type === Types.setNote) {
     let newActiveNoteIdx = getIndex(
       payload.id,
-      updatedNotebooks[notebookIdx].notes
+      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
     );
     return {
       ...state,
       activeNote: payload.id,
-      activeContent:
-        updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].content,
-      activeNoteName:
-        updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].name,
+      activeContent: sync
+        ? activeNotes[newActiveNoteIdx].body
+        : updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].body,
+      activeNoteTitle: sync
+        ? activeNotes[newActiveNoteIdx].title
+        : updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].title,
     };
   } else if (type === Types.deleteNotebook) {
-    if (payload.id === activeNotebook) {
-      if (updatedNotebooks.length > 1) {
-        if (notebookIdx === updatedNotebooks.length - 1) {
-          activeNotebook = updatedNotebooks[notebookIdx - 1].id;
-          activeNote = updatedNotebooks[notebookIdx - 1].notes.length
-            ? updatedNotebooks[notebookIdx - 1].notes[0].id
-            : null;
-          activeContent = activeNote
-            ? updatedNotebooks[notebookIdx - 1].notes[0].content
-            : null;
-          activeNoteName = activeNote
-            ? updatedNotebooks[notebookIdx - 1].notes[0].name
-            : null;
-        } else {
-          activeNotebook = updatedNotebooks[notebookIdx + 1].id;
-          activeNote = updatedNotebooks[notebookIdx + 1].notes.length
-            ? updatedNotebooks[notebookIdx + 1].notes[0].id
-            : null;
-          activeContent = activeNote
-            ? updatedNotebooks[notebookIdx + 1].notes[0].content
-            : null;
-          activeNoteName = activeNote
-            ? updatedNotebooks[notebookIdx + 1].notes[0].name
-            : null;
-        }
-      } else
-        activeNotebook = activeNote = activeContent = activeNoteName = null;
-    }
     updatedNotebooks = updatedNotebooks.filter(
       (notebook) => notebook.id !== payload.id
     );
     return {
       ...state,
-      notebooks: updatedNotebooks,
-      activeNote,
-      activeNotebook,
-      activeContent,
-      activeNoteName,
+      notebooks: [...updatedNotebooks],
+      activeNote: payload.activeNote,
+      activeNotebook: payload.activeNotebook,
+      activeContent: payload.activeContent,
+      activeNoteTitle: payload.activeNoteTitle,
     };
   } else if (type === Types.createNote) {
-    activeNote = uuid();
+    activeNote = payload.id;
     activeContent = "";
-    updatedNotebooks[notebookIdx].notes.push({
-      name: payload.name,
-      id: activeNote,
-      isTodo: payload.isTodo,
-      done: false,
-      content: "",
-    });
+    if (sync) {
+      activeNotes.push({
+        title: payload.title,
+        id: payload.id,
+        is_todo: payload.is_todo,
+        todo_completed: false,
+        body: "",
+      });
+    } else
+      updatedNotebooks[notebookIdx].notes.push({
+        title: payload.title,
+        id: activeNote ? activeNote : "",
+        is_todo: payload.is_todo,
+        todo_completed: false,
+        body: "",
+      });
     return {
       ...state,
       notebooks: updatedNotebooks,
       activeNote,
       activeContent,
-      activeNoteName: payload.name,
+      activeNotes,
+      activeNoteTitle: payload.title,
     };
   } else if (type === Types.deleteNote) {
-    let notes = updatedNotebooks[notebookIdx].notes;
+    let notes = sync ? activeNotes : updatedNotebooks[notebookIdx].notes;
+    let deleteIdx = getIndex(payload.id, notes);
+    console.log(deleteIdx, notes);
     if (notes.length > 1) {
-      if (noteIdx === notes.length - 1) {
-        activeNote = notes[noteIdx - 1].id;
-        activeContent = notes[noteIdx - 1].content;
-        activeNoteName = notes[noteIdx - 1].name;
+      if (deleteIdx === notes.length - 1) {
+        activeNote = notes[deleteIdx - 1].id;
+        activeContent = notes[deleteIdx - 1].body;
+        activeNoteTitle = notes[deleteIdx - 1].title;
       } else {
-        activeNote = notes[noteIdx + 1].id;
-        activeContent = notes[noteIdx + 1].content;
-        activeNoteName = notes[noteIdx + 1].name;
+        activeNote = notes[deleteIdx + 1].id;
+        activeContent = notes[deleteIdx + 1].body;
+        activeNoteTitle = notes[deleteIdx + 1].title;
       }
-    } else activeNote = activeContent = activeNoteName = null;
-    updatedNotebooks[notebookIdx].notes.splice(noteIdx);
+    } else activeNote = activeContent = activeNoteTitle = null;
+    if (sync) {
+      activeNotes.splice(deleteIdx, 1);
+      return {
+        ...state,
+        activeNotes: [...activeNotes],
+        activeNote,
+        activeContent,
+        activeNoteTitle,
+      };
+    }
+    updatedNotebooks[notebookIdx].notes.splice(deleteIdx, 1);
     return {
       ...state,
-      notebooks: updatedNotebooks,
+      notebooks: [...updatedNotebooks],
       activeNote,
       activeContent,
-      activeNoteName,
+      activeNoteTitle,
     };
   }
   return state;

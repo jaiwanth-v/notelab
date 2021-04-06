@@ -1,0 +1,64 @@
+.sync-form {
+  width: 100vw;
+  background: #f1f7fc;
+  padding: 80px 0;
+}
+
+.sync-form form {
+  max-width: 320px;
+  width: 90%;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 4px;
+  color: #505e6c;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sync-form form .form-control {
+  background: #f7f9fc;
+  border: none;
+  border-bottom: 1px solid #dfe7f1;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  color: inherit;
+  text-indent: 0px;
+  height: 42px;
+}
+
+.sync-form form .btn-primary {
+  background: #0090ead7;
+  border: none;
+  border-radius: 4px;
+  padding: 11px;
+  box-shadow: none;
+  margin-top: 26px;
+  text-shadow: none;
+  outline: none !important;
+}
+
+.sync-form form .btn-primary:hover,
+.sync-form form .btn-primary:active {
+  background: #0090ea;
+}
+
+.sync-form form .btn-primary:active {
+  transform: translateY(1px);
+}
+
+.sync-form form .demo-option {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #0090ea;
+  opacity: 0.9;
+  text-decoration: underline;
+}
+
+.sync-form form .demo-option:hover,
+.sync-form form .demo-option:active {
+  opacity: 1;
+  cursor: pointer;
+  text-decoration: none;
+}

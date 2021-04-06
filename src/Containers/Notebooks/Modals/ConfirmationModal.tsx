@@ -1,7 +1,8 @@
+import axios from "axios";
 import React, { FormEvent } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Dialog from "../../../Components/Dialog/Dialog";
-import { Types } from "../../../Redux/Reducer";
+import { getIndex, Types, sync, url, token } from "../../../Redux/Reducer";
 
 interface Props {
   show: boolean;
@@ -12,16 +13,64 @@ interface Props {
 
 const ConfirmationModal: React.FC<Props> = ({ show, closeModal, id, name }) => {
   const dispatch = useDispatch();
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const state: any = useSelector((state) => state);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    let {
+      activeNote,
+      activeNotebook,
+      activeContent,
+      activeNoteTitle,
+      notebooks,
+    } = state;
+    let activeNotes;
+    let notebookIdx = getIndex(activeNotebook, notebooks);
+    if (id === activeNotebook) {
+      if (notebooks.length > 1) {
+        if (notebookIdx === notebooks.length - 1) {
+          activeNotebook = notebooks[notebookIdx - 1].id;
+          activeNotes = notebooks[notebookIdx - 1].notes;
+          if (sync) {
+            const res = await axios.get(
+              `${url}/folders/${activeNotebook}/notes`,
+              { params: { token } }
+            );
+            activeNotes = res.data.items;
+          }
+          activeNote = activeNotes.length ? activeNotes[0].id : null;
+          activeContent = activeNote ? activeNotes[0].body : null;
+          activeNoteTitle = activeNote ? activeNotes[0].title : null;
+        } else {
+          activeNotebook = notebooks[notebookIdx + 1].id;
+          activeNotes = notebooks[notebookIdx + 1].notes;
+          if (sync) {
+            const res = await axios.get(
+              `${url}/folders/${activeNotebook}/notes`,
+              { params: { token } }
+            );
+            activeNotes = res.data.items;
+          }
+          activeNote = activeNotes.length ? activeNotes[0].id : null;
+          activeContent = activeNote ? activeNotes[0].body : null;
+          activeNoteTitle = activeNote ? activeNotes[0].title : null;
+        }
+      } else
+        activeNotebook = activeNote = activeContent = activeNoteTitle = null;
+    }
+    await axios.delete(`${url}/folders/${id}`, { params: { token } });
     dispatch({
       type: Types.deleteNotebook,
-      payload: { id },
+      payload: {
+        id,
+        activeNotes,
+        activeContent,
+        activeNoteTitle,
+        activeNote,
+        activeNotebook,
+      },
     });
     closeModal();
   };
-
   return (
     <Dialog visible={show} closeDialog={closeModal}>
       <h5 style={{ marginTop: "15px" }}>
