@@ -1,5 +1,6 @@
 .sync-form {
   width: 100vw;
+  text-align: center;
   background: #f1f7fc;
   padding: 80px 0;
 }
@@ -61,4 +62,12 @@
   opacity: 1;
   cursor: pointer;
   text-decoration: none;
+}
+
+.sync-form {
+  img {
+    width: 100px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+  }
 }

@@ -29,6 +29,7 @@ const LoginForm: React.FC<Props> = ({ toggleNew }) => {
   return (
     <div className="sync-form">
       <form>
+        <img src="https://joplinapp.org/images/Icon512.png" alt="Joplin Logo" />
         <h2 className="sr-only">Login Form</h2>
         <div className="form-group">
           <h6> Authorization Token: </h6>{" "}
