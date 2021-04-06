@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import Loader from "../Components/Loader/Loader";
 import { Types } from "../Redux/Reducer";
 import LoginForm from "./LoginForm/LoginForm";
 import Editor from "./Note/Note";
@@ -27,7 +28,6 @@ const Joplin: React.FC = () => {
           params: { token },
         });
         const notebooks = notebooksRes.data.items;
-        console.log(notebooks);
         if (notebooks.length) {
           const notesRes = await axios.get(
             `${url}/folders/${notebooks[0].id}/notes`,
@@ -39,7 +39,6 @@ const Joplin: React.FC = () => {
           const activeNote = notes.length ? notes[0].id : null;
           const activeNoteTitle = notes.length ? notes[0].title : null;
           const activeContent = notes.length ? notes[0].body : null;
-          console.log(notes, activeNote, activeNoteTitle, activeContent);
           dispatch({
             type: Types.populateState,
             payload: {
@@ -64,13 +63,19 @@ const Joplin: React.FC = () => {
     if (!isNew) {
       let sync = window.localStorage.getItem("joplin-sync") === "on";
       if (sync) {
+        setLoading(true);
         fetchAndPopulate();
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000);
       }
     }
   }, [dispatch, isNew]);
 
   return isNew ? (
     <LoginForm toggleNew={toggleNew} />
+  ) : loading ? (
+    <Loader />
   ) : (
     <>
       <Notebooks />
