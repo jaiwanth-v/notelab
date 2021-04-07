@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import "./CodeMirrorLive.scss";
-import CodeEditor from "./CreateInstance";
+import CreateInstance from "./CreateInstance";
 import LiveMarkdownContent from "./LiveMarkdownContent";
 import MembersInformation from "./MembersInformation";
 import NameForm from "./NameForm";
@@ -13,7 +13,7 @@ interface Props {
   userName?: string;
 }
 
-const CodeMirrorEditor: React.FC<Props> = ({ userName = "R" }) => {
+const CodeMirrorEditor: React.FC<Props> = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const [isNew, setNew] = useState(
     window.localStorage.getItem("joplin-name") === null
@@ -23,15 +23,22 @@ const CodeMirrorEditor: React.FC<Props> = ({ userName = "R" }) => {
     setNew(false);
   };
   useEffect(() => {
+    const beforeUnloadListener = (event: any) => {
+      event.returnValue = `Are you sure you want to leave?`;
+    };
+    window.addEventListener("beforeunload", beforeUnloadListener);
     document.title = "Live Collaboration";
     if (!isNew) {
-      CodeEditor(
+      CreateInstance(
         dispatch,
         roomId,
         window.localStorage.getItem("joplin-name"),
         "markdown"
       );
     }
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnloadListener);
+    };
   }, [dispatch, isNew, roomId]);
   return isNew ? (
     <NameForm toggleNew={toggleNew} />

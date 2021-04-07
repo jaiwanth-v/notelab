@@ -12,7 +12,6 @@ const Toolbar: React.FC<Props> = ({ cmRef }) => {
     e.preventDefault();
     applyFormat(cmRef, formatKey);
   };
-  console.log(cmRef);
   const renderToolbar = () => {
     let arr: JSX.Element[] = [];
     for (let format in FORMATS) {

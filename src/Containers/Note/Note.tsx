@@ -64,9 +64,12 @@ const Note: React.FC<Props> = () => {
     }
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:1234/${activeNote}`, {
-        content: activeContent,
-      });
+      await axios.post(
+        `https://joplin-server.eu-gb.cf.appdomain.cloud/${activeNote}`,
+        {
+          content: activeContent,
+        }
+      );
       setCollaborating(true);
       const newWindow = window.open(
         `http://localhost:3000/live/${activeNote}`,

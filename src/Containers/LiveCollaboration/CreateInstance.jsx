@@ -6,9 +6,13 @@ import { sync, token, Types, url } from "../../Redux/Reducer";
 import axios from "axios";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
-const CodeEditor = (dispatch, id, username, mode) => {
+const CreateInstance = (dispatch, id, username, mode) => {
   const ydoc = new Y.Doc();
-  const provider = new WebsocketProvider("ws://localhost:1234", id, ydoc);
+  const provider = new WebsocketProvider(
+    `wss://joplin-server.eu-gb.cf.appdomain.cloud:443`,
+    id,
+    ydoc
+  );
   const yText = ydoc.getText("codemirror");
   const editorContainer = document.getElementById("live-editor");
   const editor = new CodeMirror(editorContainer, {
@@ -47,4 +51,4 @@ const CodeEditor = (dispatch, id, username, mode) => {
   return { provider, ydoc, yText, binding, Y };
 };
 
-export default CodeEditor;
+export default CreateInstance;
