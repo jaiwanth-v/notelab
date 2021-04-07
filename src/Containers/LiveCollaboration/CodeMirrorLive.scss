@@ -1,45 +1,111 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap");
+.collab-title {
+  height: 100px;
+  font-family: "Lato", sans-serif;
+  h4 {
+    text-align: center;
+  }
+  .members-info {
+    text-align: end;
+    margin-right: 14px;
+  }
+}
+
 .collab-workspace {
   display: flex;
-  height: 100vh;
   width: 100vw;
+  height: calc(100vh - 100px);
   .markdown-body,
   .code-mirror {
+    width: 50%;
+    height: calc(100vh - 100px);
     flex: 1 0 50%;
   }
-  .remote-caret {
-    position: relative;
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    margin-left: -1px;
-    margin-right: -1px;
-    box-sizing: border-box;
+  > * {
+    padding: 0 4px;
+  }
+  .CodeMirror {
+    height: calc(100vh - 100px);
+  }
+  .markdown-body {
+    font-size: unset !important;
+    word-wrap: break-word;
+    overflow-y: scroll;
+    padding-top: 7px;
+    height: calc(100vh - 100px);
+    padding-bottom: 100px;
+  }
+  .CodeMirror-vscrollbar,
+  .CodeMirror-hscrollbar {
+    outline: none;
+    border: none;
   }
   .CodeMirror-scroll {
-    padding-top: 10px;
+    padding-top: 7px;
   }
-  .remote-caret > div {
-    position: absolute;
-    top: -1.05em;
-    left: -1px;
-    font-size: 1em;
-    background-color: rgb(250, 129, 0);
-    font-family: serif;
-    font-style: normal;
-    font-weight: normal;
-    line-height: normal;
-    user-select: none;
-    color: white;
-    padding-left: 2px;
-    padding-right: 2px;
-    z-index: 3;
-    transition: opacity 0.3s ease-in-out;
+  .CodeMirror-lines {
+    padding-bottom: 50px;
   }
-  .remote-caret.hide-name > div {
-    transition-delay: 0.7s;
-    opacity: 0;
+  .CodeMirror-vscrollbar::-webkit-scrollbar,
+  .markdown-body::-webkit-scrollbar {
+    width: 6px;
   }
-  .remote-caret:hover > div {
-    opacity: 1;
-    transition-delay: 0s;
+
+  .CodeMirror-hscrollbar::-webkit-scrollbar,
+  .markdown-body pre::-webkit-scrollbar {
+    height: 9px;
   }
+
+  .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+  .CodeMirror-hscrollbar::-webkit-scrollbar-track,
+  .markdown-body::-webkit-scrollbar-track,
+  .markdown-body pre::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+  .CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
+  .markdown-body::-webkit-scrollbar-thumb,
+  .markdown-body pre::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+  }
+}
+.remote-caret {
+  position: relative;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  margin-left: -1px;
+  margin-right: -1px;
+  box-sizing: border-box;
+}
+.CodeMirror-scroll {
+  padding-top: 10px;
+}
+.remote-caret > div {
+  position: absolute;
+  top: -1.05em;
+  left: -1px;
+  font-size: 1em;
+  background-color: rgb(250, 129, 0);
+  font-family: serif;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  user-select: none;
+  color: white;
+  padding-left: 2px;
+  padding-right: 2px;
+  z-index: 3;
+  transition: opacity 0.3s ease-in-out;
+}
+.remote-caret.hide-name > div {
+  transition-delay: 0.7s;
+  opacity: 0;
+}
+.remote-caret:hover > div {
+  opacity: 1;
+  transition-delay: 0s;
 }

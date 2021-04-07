@@ -127,7 +127,6 @@ export const appReducer = (
 
   if (type === Types.setContent) {
     if (!sync) updatedNotebooks[notebookIdx].notes[noteIdx].body = payload.body;
-
     return {
       ...state,
       notebooks: updatedNotebooks,

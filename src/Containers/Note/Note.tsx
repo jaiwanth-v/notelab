@@ -23,9 +23,9 @@ const Note: React.FC<Props> = () => {
   );
   const activeNote = useSelector((state: StateType) => state.activeNote);
   const [showToolbar, setToolbar] = useState(false); //to trigger a rerender on editor mount
-  const [showCollab, setCollab] = useState(false);
-
-  const cmRef = useRef();
+  const [showCollab, setCollabModal] = useState(false);
+  const [collaborating, setCollaborating] = useState(false);
+  const cmRef: any = useRef();
 
   const dispatch = useDispatch();
   const onToggleEditMode = () => {
@@ -55,12 +55,19 @@ const Note: React.FC<Props> = () => {
     dispatch({ type: Types.setContent, payload: { body: value } });
   };
 
-  const startCollaboration = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCollaboration = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if (collaborating) {
+      setCollaborating(false);
+      return;
+    }
     e.preventDefault();
     try {
       await axios.post(`http://localhost:1234/${activeNote}`, {
         content: activeContent,
       });
+      setCollaborating(true);
       const newWindow = window.open(
         `http://localhost:3000/live/${activeNote}`,
         "_blank",
@@ -71,12 +78,13 @@ const Note: React.FC<Props> = () => {
       alert(
         "Some error occured please try later, probably the server is down."
       );
+      setCollaborating(false);
       console.log("Error");
     }
   };
 
   const closeCollab = () => {
-    setCollab(false);
+    setCollabModal(false);
   };
 
   let isPreviewScrolling = useRef(false),
@@ -135,18 +143,33 @@ const Note: React.FC<Props> = () => {
       >
         {activeNoteTitle}
       </h3>
-      <Dialog visible={showCollab} closeDialog={closeCollab}>
+      <Dialog
+        visible={showCollab}
+        closeDialog={closeCollab}
+        closeButtonVisibility={!collaborating}
+      >
         <h2> Live Collaboration </h2>
         <h5> You can invite people to this note to collaborate with you. </h5>
-        <button className="btn btn-light" onClick={startCollaboration}>
-          <i className="far fa-play-circle"></i> Start Session{" "}
+        <button
+          className={`btn ${collaborating ? "btn-danger" : "btn-light"} `}
+          onClick={handleCollaboration}
+        >
+          {!collaborating ? (
+            <>
+              <i className="far fa-play-circle" /> Start Session{" "}
+            </>
+          ) : (
+            <>
+              <i className="far fa-stop-circle" /> Stop Collaborating
+            </>
+          )}
         </button>
       </Dialog>
       <div className="note-toolbar">
         {!readerMode && showToolbar && <Toolbar cmRef={cmRef.current} />}
         <div className="view-modes">
           <i
-            onClick={() => setCollab(true)}
+            onClick={() => setCollabModal(true)}
             className="fas fa-user-friends"
             title="Start Collaboration"
           ></i>
