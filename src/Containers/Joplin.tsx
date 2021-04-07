@@ -57,11 +57,13 @@ const Joplin: React.FC = () => {
           "Error fetching data. Either the auth token is incorrect or the web clipper service isn't active"
         );
         window.localStorage.removeItem("joplin-sync");
-        setNew(false);
+        setNew(true);
       }
     };
     if (!isNew) {
       let sync = window.localStorage.getItem("joplin-sync") === "on";
+      try {
+      } catch (error) {}
       if (sync) {
         setLoading(true);
         fetchAndPopulate();

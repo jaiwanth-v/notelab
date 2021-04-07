@@ -1,9 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
-import { UnControlled as CodeMirror } from "react-codemirror2";
+import { Controlled as CodeMirror } from "react-codemirror2";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType, sync, Types, url, token } from "../../Redux/Reducer";
-import { getCursorState } from "./MarkdownHelpers/Formatting";
 import Toolbar from "./MarkdownHelpers/Toolbar";
 import MarkdownViewer from "../../Components/MarkdownViewer";
 import Dialog from "../../Components/Dialog/Dialog";
@@ -22,8 +22,6 @@ const Note: React.FC<Props> = () => {
     (state: StateType) => state.activeNoteTitle
   );
   const activeNote = useSelector((state: StateType) => state.activeNote);
-
-  const [cs, setCs] = useState({});
   const [showToolbar, setToolbar] = useState(false); //to trigger a rerender on editor mount
   const [showCollab, setCollab] = useState(false);
 
@@ -42,10 +40,6 @@ const Note: React.FC<Props> = () => {
     const newEditModeState = newReaderModeState ? false : editMode;
     setReaderMode(newReaderModeState);
     setEditMode(newEditModeState);
-  };
-
-  const updateCursorState = () => {
-    setCs(getCursorState(cmRef.current));
   };
 
   const handleChange = (editor: any, data: any, value: string) => {
@@ -74,7 +68,9 @@ const Note: React.FC<Props> = () => {
       );
       if (newWindow) newWindow.opener = null;
     } catch (err) {
-      alert("Some error occured please try later");
+      alert(
+        "Some error occured please try later, probably the server is down."
+      );
       console.log("Error");
     }
   };
@@ -91,6 +87,7 @@ const Note: React.FC<Props> = () => {
     function onEditorScroll(e: any) {
       if (!isEditorScrolling.current) {
         isPreviewScrolling.current = true;
+        if (!previewElm) previewElm = document.querySelector(".markdown-body");
         previewElm!.scrollTop = e.target.scrollTop;
       }
       isEditorScrolling.current = false;
@@ -99,12 +96,20 @@ const Note: React.FC<Props> = () => {
     function onPreviewScroll(e: any) {
       if (!isPreviewScrolling.current) {
         isEditorScrolling.current = true;
+        if (!editorElm)
+          editorElm = document.querySelector(".CodeMirror-vscrollbar");
         editorElm!.scrollTop = e.target.scrollTop;
       }
       isPreviewScrolling.current = false;
     }
-    if (previewElm) previewElm!.addEventListener("scroll", onPreviewScroll);
-    if (editorElm) editorElm!.addEventListener("scroll", onEditorScroll);
+    if (!previewElm) {
+      previewElm = document.querySelector(".markdown-body");
+    }
+    if (!editorElm) {
+      editorElm = document.querySelector(".CodeMirror-vscrollbar");
+    }
+    previewElm!.addEventListener("scroll", onPreviewScroll);
+    editorElm!.addEventListener("scroll", onEditorScroll);
     return () => {
       if (previewElm)
         previewElm!.removeEventListener("scroll", onPreviewScroll);
@@ -138,9 +143,7 @@ const Note: React.FC<Props> = () => {
         </button>
       </Dialog>
       <div className="note-toolbar">
-        {!readerMode && showToolbar && (
-          <Toolbar cmRef={cmRef.current} cs={cs} />
-        )}
+        {!readerMode && showToolbar && <Toolbar cmRef={cmRef.current} />}
         <div className="view-modes">
           <i
             onClick={() => setCollab(true)}
@@ -166,7 +169,6 @@ const Note: React.FC<Props> = () => {
       <div className="workspace">
         {!readerMode ? (
           <CodeMirror
-            autoScroll
             className="code-mirror cm-m-markdown"
             value={activeContent}
             editorDidMount={(editor) => {
@@ -179,8 +181,7 @@ const Note: React.FC<Props> = () => {
               lineNumbers: false,
               autofocus: true,
             }}
-            onChange={handleChange}
-            onCursorActivity={updateCursorState}
+            onBeforeChange={handleChange}
           />
         ) : null}
         {!editMode ? <MarkdownViewer>{activeContent}</MarkdownViewer> : null}

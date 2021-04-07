@@ -40,6 +40,7 @@ function MarkdownViewer({ children }: any) {
     <ReactMarkdown
       className="markdown-body"
       renderers={renderers}
+      allowDangerousHtml
       plugins={[gfm, emoji, toc]}
     >
       {children}

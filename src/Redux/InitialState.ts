@@ -10,8 +10,6 @@ const markdownContent =
   "\n" +
   "The notes in this notebook give an overview of what Joplin can do and how to use it. In general, the three applications share roughly the same functionalities; any differences will be clearly indicated.\n" +
   "\n" +
-  "![](./AllClients.png)\n" +
-  "\n" +
   "## Joplin is divided into three parts\n" +
   "\n" +
   "Joplin has three main columns:\n" +
@@ -59,8 +57,6 @@ const markdownContent =
   "- On **desktop**, you can create a notebook by clicking on New Notebook, then you can drag and drop them into other notebooks to organise them as you wish.\n" +
   '- On **mobile**, press the "+" icon and select "New notebook".\n' +
   "- On **terminal**, press `:mn`\n" +
-  "\n" +
-  "![](./SubNotebooks.png)\n" +
   "\n" +
   "### With tags 🏷️\n" +
   "\n" +

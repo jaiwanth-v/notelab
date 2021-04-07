@@ -36,12 +36,12 @@ export type StateType = {
   activeNoteTitle: string | null;
 };
 
-export const sync = window.localStorage.getItem("joplin-sync") === "on";
-export const token = window.localStorage.getItem("joplin-token");
-export const url = window.localStorage.getItem("joplin-url");
+export var sync = window.localStorage.getItem("joplin-sync") === "on";
+export var token = window.localStorage.getItem("joplin-token");
+export var url = window.localStorage.getItem("joplin-url");
 
 export function getIndex(id: string | null, array: any): number {
-  if (!id) return -1;
+  if (!id || !array) return -1;
   return array.findIndex((element: any) => element.id === id);
 }
 type Action = {
@@ -61,6 +61,9 @@ export const appReducer = (
   let { activeNote, activeNotebook, activeContent, activeNoteTitle } = state;
   let { activeNotes }: any = state;
   if (type === Types.populateState) {
+    sync = true;
+    token = window.localStorage.getItem("joplin-token");
+    url = window.localStorage.getItem("joplin-url");
     return {
       ...state,
       notebooks: payload.notebooks,
@@ -236,7 +239,6 @@ export const appReducer = (
   } else if (type === Types.deleteNote) {
     let notes = sync ? activeNotes : updatedNotebooks[notebookIdx].notes;
     let deleteIdx = getIndex(payload.id, notes);
-    console.log(deleteIdx, notes);
     if (notes.length > 1) {
       if (deleteIdx === notes.length - 1) {
         activeNote = notes[deleteIdx - 1].id;

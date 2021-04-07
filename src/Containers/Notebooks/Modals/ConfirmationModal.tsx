@@ -57,7 +57,7 @@ const ConfirmationModal: React.FC<Props> = ({ show, closeModal, id, name }) => {
       } else
         activeNotebook = activeNote = activeContent = activeNoteTitle = null;
     }
-    await axios.delete(`${url}/folders/${id}`, { params: { token } });
+    if (sync) await axios.delete(`${url}/folders/${id}`, { params: { token } });
     dispatch({
       type: Types.deleteNotebook,
       payload: {

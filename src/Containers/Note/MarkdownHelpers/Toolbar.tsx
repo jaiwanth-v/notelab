@@ -3,12 +3,11 @@ import { applyFormat } from "./Formatting";
 
 interface Props {
   cmRef: any;
-  cs?: any;
 }
 
 const { FORMATS }: any = require("./Formatting");
 
-const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
+const Toolbar: React.FC<Props> = ({ cmRef }) => {
   const toggleFormat = (formatKey: any, e: any) => {
     e.preventDefault();
     applyFormat(cmRef, formatKey);
@@ -21,7 +20,7 @@ const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
           <i
             onClick={(e) => toggleFormat(format, e)}
             key={format}
-            className={`toolbar-headings ${cs && cs[format] ? "active" : ""}`}
+            className={`toolbar-headings`}
             title={format}
           >
             {format.toUpperCase()}
@@ -32,9 +31,7 @@ const Toolbar: React.FC<Props> = ({ cmRef, cs }) => {
           <i
             onClick={(e) => toggleFormat(format, e)}
             key={format}
-            className={`${FORMATS[format].icon} ${
-              cs && cs[format] ? "active" : ""
-            }`}
+            className={`${FORMATS[format].icon}`}
             title={format}
           ></i>
         );

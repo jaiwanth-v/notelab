@@ -38,6 +38,7 @@ const Notes: React.FC<Props> = () => {
 
   const [modal, setModal] = useState(false);
   const [noteType, setNoteType] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const outerRef: any = useRef();
 
   const setActiveNote = (id: string) => {
@@ -90,6 +91,11 @@ const Notes: React.FC<Props> = () => {
         (a: Note, b: Note) =>
           Number(a.todo_completed) - Number(b.todo_completed)
       );
+      if (searchValue) {
+        activeNotes = activeNotes.filter((note: Note) =>
+          note.title.toLowerCase().includes(searchValue.toLowerCase())
+        );
+      }
       return (
         <div className="notes-list" ref={outerRef}>
           {activeNotes.map((note: Note) => (
@@ -137,8 +143,10 @@ const Notes: React.FC<Props> = () => {
             <div className="input-group">
               <input
                 type="text"
+                value={searchValue}
                 className="form-control"
                 id="searchbar-input"
+                onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Search..."
                 autoComplete="off"
               />
