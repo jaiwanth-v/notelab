@@ -6,7 +6,7 @@ import CodeMirrorEditor from "./LiveCollaboration/CodeMirrorLive";
 
 interface Props {}
 
-const JoplinLive: React.FC<Props> = () => {
+const NoteliaLive: React.FC<Props> = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const [roomExists, setStatus] = useState<any>(false);
   const [loading, setLoading] = useState(true);
@@ -14,14 +14,14 @@ const JoplinLive: React.FC<Props> = () => {
     const checkRoom = async () => {
       try {
         await axios.get(
-          `https://joplin-server.eu-gb.cf.appdomain.cloud/${roomId}`
+          `https://notelia-server.eu-gb.cf.appdomain.cloud/${roomId}`
         );
         setStatus(true);
         setTimeout(() => {
           setLoading(false);
         }, 300);
       } catch (err) {
-        alert("Room doesn't exist. Please join through joplin's website");
+        alert("Room doesn't exist. Please join through Notelia's website");
         setLoading(false);
       }
     };
@@ -30,4 +30,4 @@ const JoplinLive: React.FC<Props> = () => {
   return loading ? <Loader /> : roomExists ? <CodeMirrorEditor /> : null;
 };
 
-export default JoplinLive;
+export default NoteliaLive;

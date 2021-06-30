@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Note.scss";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import { useDispatch, useSelector } from "react-redux";
-import { StateType, sync, Types, url, token } from "../../Redux/Reducer";
+import { StateType, Types } from "../../Redux/Reducer";
 import Toolbar from "./MarkdownHelpers/Toolbar";
 import MarkdownViewer from "../../Components/MarkdownViewer";
 import Dialog from "../../Components/Dialog/Dialog";
@@ -43,36 +43,34 @@ const Note: React.FC<Props> = () => {
   };
 
   const handleChange = (editor: any, data: any, value: string) => {
-    if (sync) {
-      axios.put(
-        `${url}/notes/${activeNote}`,
-        {
-          body: value,
-        },
-        { params: { token } }
-      );
-    }
     dispatch({ type: Types.setContent, payload: { body: value } });
+  };
+
+  const handleRename = (e: any) => {
+    const newNoteName = e.currentTarget.textContent;
+    document.title = newNoteName ? newNoteName : "Notelia";
+    dispatch({
+      type: Types.renameNote,
+      payload: { title: newNoteName, id: activeNote },
+    });
   };
 
   const handleCollaboration = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     if (collaborating) {
+      window.location.reload();
       setCollaborating(false);
       return;
     }
     e.preventDefault();
     try {
-      await axios.post(
-        `https://joplin-server.eu-gb.cf.appdomain.cloud/${activeNote}`,
-        {
-          content: activeContent,
-        }
-      );
+      await axios.post(`https://notelia-server.eu-gb.cf.appdomain.cloud/${activeNote}`, {
+        content: activeContent,
+      });
       setCollaborating(true);
       const newWindow = window.open(
-        `http://localhost:3000/live/${activeNote}`,
+        `/live/${activeNote}`,
         "_blank",
         "noopener,noreferrer"
       );
@@ -95,6 +93,7 @@ const Note: React.FC<Props> = () => {
   let previewElm = document.querySelector(".markdown-body");
   let editorElm = document.querySelector(".CodeMirror-vscrollbar");
   useEffect(() => {
+    document.title = activeNoteTitle ? activeNoteTitle : "Notelia";
     function onEditorScroll(e: any) {
       if (!isEditorScrolling.current) {
         isPreviewScrolling.current = true;
@@ -119,12 +118,11 @@ const Note: React.FC<Props> = () => {
     if (!editorElm) {
       editorElm = document.querySelector(".CodeMirror-vscrollbar");
     }
-    previewElm!.addEventListener("scroll", onPreviewScroll);
-    editorElm!.addEventListener("scroll", onEditorScroll);
+    previewElm?.addEventListener("scroll", onPreviewScroll);
+    editorElm?.addEventListener("scroll", onEditorScroll);
     return () => {
-      if (previewElm)
-        previewElm!.removeEventListener("scroll", onPreviewScroll);
-      if (editorElm) editorElm!.removeEventListener("scroll", onEditorScroll);
+      previewElm?.removeEventListener("scroll", onPreviewScroll);
+      editorElm?.removeEventListener("scroll", onEditorScroll);
     };
   }, [editorElm, previewElm]);
 
@@ -137,12 +135,7 @@ const Note: React.FC<Props> = () => {
         contentEditable
         suppressContentEditableWarning
         spellCheck={false}
-        onBlur={(e) => {
-          dispatch({
-            type: Types.renameNote,
-            payload: { title: e.currentTarget.textContent, id: activeNote },
-          });
-        }}
+        onInput={handleRename}
       >
         {activeNoteTitle}
       </h3>

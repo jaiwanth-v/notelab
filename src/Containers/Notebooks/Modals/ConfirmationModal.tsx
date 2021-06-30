@@ -1,8 +1,7 @@
-import axios from "axios";
 import React, { FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "../../../Components/Dialog/Dialog";
-import { getIndex, Types, sync, url, token } from "../../../Redux/Reducer";
+import { getIndex, Types } from "../../../Redux/Reducer";
 
 interface Props {
   show: boolean;
@@ -30,26 +29,12 @@ const ConfirmationModal: React.FC<Props> = ({ show, closeModal, id, name }) => {
         if (notebookIdx === notebooks.length - 1) {
           activeNotebook = notebooks[notebookIdx - 1].id;
           activeNotes = notebooks[notebookIdx - 1].notes;
-          if (sync) {
-            const res = await axios.get(
-              `${url}/folders/${activeNotebook}/notes`,
-              { params: { token } }
-            );
-            activeNotes = res.data.items;
-          }
           activeNote = activeNotes.length ? activeNotes[0].id : null;
           activeContent = activeNote ? activeNotes[0].body : null;
           activeNoteTitle = activeNote ? activeNotes[0].title : null;
         } else {
           activeNotebook = notebooks[notebookIdx + 1].id;
           activeNotes = notebooks[notebookIdx + 1].notes;
-          if (sync) {
-            const res = await axios.get(
-              `${url}/folders/${activeNotebook}/notes`,
-              { params: { token } }
-            );
-            activeNotes = res.data.items;
-          }
           activeNote = activeNotes.length ? activeNotes[0].id : null;
           activeContent = activeNote ? activeNotes[0].body : null;
           activeNoteTitle = activeNote ? activeNotes[0].title : null;
@@ -57,7 +42,6 @@ const ConfirmationModal: React.FC<Props> = ({ show, closeModal, id, name }) => {
       } else
         activeNotebook = activeNote = activeContent = activeNoteTitle = null;
     }
-    if (sync) await axios.delete(`${url}/folders/${id}`, { params: { token } });
     dispatch({
       type: Types.deleteNotebook,
       payload: {

@@ -10,14 +10,14 @@ const LoginForm: React.FC<Props> = ({ toggleNew }) => {
   const [token, setToken] = useState("");
   const setLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    window.localStorage.setItem("joplin-sync", "on");
-    window.localStorage.setItem("joplin-token", token);
-    window.localStorage.setItem("joplin-url", "http://localhost:" + port);
+    window.localStorage.setItem("Notelia-sync", "on");
+    window.localStorage.setItem("Notelia-token", token);
+    window.localStorage.setItem("Notelia-url", "http://localhost:" + port);
     toggleNew();
   };
   const setDemo = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    window.localStorage.setItem("joplin-sync", "off");
+    window.localStorage.setItem("Notelia-sync", "off");
     toggleNew();
   };
   const handlePort = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,7 @@ const LoginForm: React.FC<Props> = ({ toggleNew }) => {
   return (
     <div className="sync-form">
       <form>
-        <img src="https://joplinapp.org/images/Icon512.png" alt="Joplin Logo" />
+        <img src="https://Noteliaapp.org/images/Icon512.png" alt="Notelia Logo" />
         <h2 className="sr-only">Login Form</h2>
         <div className="form-group">
           <h6> Authorization Token: </h6>{" "}

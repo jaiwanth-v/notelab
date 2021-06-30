@@ -1,8 +1,7 @@
-import axios from "axios";
 import React, { FormEvent } from "react";
 import { useDispatch } from "react-redux";
 import Dialog from "../../../Components/Dialog/Dialog";
-import { sync, token, Types, url } from "../../../Redux/Reducer";
+import { Types } from "../../../Redux/Reducer";
 
 interface Props {
   show: boolean;
@@ -16,9 +15,6 @@ const ConfirmDeleteNote: React.FC<Props> = ({ show, closeModal, id, name }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (sync) {
-      axios.delete(`${url}/notes/${id}`, { params: { token } });
-    }
     dispatch({
       type: Types.deleteNote,
       payload: { id },

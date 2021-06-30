@@ -5,7 +5,7 @@ import MarkdownViewer from "../../Components/MarkdownViewer";
 interface Props {}
 
 const LiveMarkdownContent: React.FC<Props> = () => {
-  const activeContent = useSelector((state: any) => state.activeContent);
+  let activeContent = useSelector((state: any) => state.activeContent);
   return <MarkdownViewer>{activeContent}</MarkdownViewer>;
 };
 

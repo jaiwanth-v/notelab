@@ -16,29 +16,22 @@ interface Props {
 const CodeMirrorEditor: React.FC<Props> = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const [isNew, setNew] = useState(
-    window.localStorage.getItem("joplin-name") === null
+    window.localStorage.getItem("Notelia-name") === null
   );
   const dispatch = useDispatch();
   const toggleNew = () => {
     setNew(false);
   };
   useEffect(() => {
-    const beforeUnloadListener = (event: any) => {
-      event.returnValue = `Are you sure you want to leave?`;
-    };
-    window.addEventListener("beforeunload", beforeUnloadListener);
     document.title = "Live Collaboration";
     if (!isNew) {
       CreateInstance(
         dispatch,
         roomId,
-        window.localStorage.getItem("joplin-name"),
+        window.localStorage.getItem("Notelia-name"),
         "markdown"
       );
     }
-    return () => {
-      window.removeEventListener("beforeunload", beforeUnloadListener);
-    };
   }, [dispatch, isNew, roomId]);
   return isNew ? (
     <NameForm toggleNew={toggleNew} />

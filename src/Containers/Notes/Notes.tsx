@@ -5,15 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getIndex,
   StateType,
-  sync,
-  token,
   Types,
-  url,
 } from "../../Redux/Reducer";
 import CreateNoteModal from "./Modals/CreateNoteModal";
 import NotesContextMenu from "./NotesContextMenu";
 import { Note } from "../../Redux/Reducer";
-import axios from "axios";
 import uuid from "../../Utils/randomIdGenerator";
 interface Props {}
 
@@ -29,11 +25,6 @@ const Notes: React.FC<Props> = () => {
   let activeNotes: any =
     notebookIdx !== -1 ? notebooks[notebookIdx].notes : null;
 
-  if (window.localStorage.getItem("joplin-sync") === "on") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    activeNotes = useSelector((state: StateType) => state.activeNotes);
-  }
-
   const dispatch = useDispatch();
 
   const [modal, setModal] = useState(false);
@@ -48,16 +39,6 @@ const Notes: React.FC<Props> = () => {
     if (activeNotebook === null) return;
     if (!noteName) return;
     const newId = uuid();
-    if (sync) {
-      axios.post(`${url}/notes`, {
-        title: noteName,
-        id: newId,
-        is_todo: noteType === "todo",
-        todo_completed: false,
-        body: "",
-        parent_id: activeNotebook,
-      });
-    }
     dispatch({
       type: Types.createNote,
       payload: { title: noteName, is_todo: noteType === "todo", id: newId },
@@ -73,15 +54,6 @@ const Notes: React.FC<Props> = () => {
     setModal(false);
   };
   const toggleTodo = (id: string, todo_completed: boolean) => {
-    if (sync) {
-      axios.put(
-        `${url}/notes/${id}`,
-        {
-          todo_completed: !todo_completed,
-        },
-        { params: { token } }
-      );
-    }
     dispatch({ type: Types.toggleTodo, payload: { id } });
   };
 

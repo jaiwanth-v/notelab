@@ -2,14 +2,14 @@ import * as Y from "yjs";
 import CodeMirror from "codemirror";
 import { WebsocketProvider } from "y-websocket";
 import { CodemirrorBinding } from "y-codemirror";
-import { sync, token, Types, url } from "../../Redux/Reducer";
-import axios from "axios";
+import { Types } from "../../Redux/Reducer";
 require("codemirror/lib/codemirror.css");
 require("codemirror/mode/markdown/markdown.js");
+
 const CreateInstance = (dispatch, id, username, mode) => {
   const ydoc = new Y.Doc();
   const provider = new WebsocketProvider(
-    `wss://joplin-server.eu-gb.cf.appdomain.cloud:443`,
+    `wss://notelia-server.eu-gb.cf.appdomain.cloud:443`,
     id,
     ydoc
   );
@@ -27,9 +27,6 @@ const CreateInstance = (dispatch, id, username, mode) => {
   });
   ydoc.on("update", () => {
     const body = ydoc.toJSON().codemirror.replace("↵", "\\n");
-    if (sync) {
-      axios.put(`${url}/notes/${id}`, { body }, { params: { token } });
-    }
     dispatch({
       type: Types.setContent,
       payload: { body },

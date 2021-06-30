@@ -36,10 +36,6 @@ export type StateType = {
   activeNoteTitle: string | null;
 };
 
-export var sync = window.localStorage.getItem("joplin-sync") === "on";
-export var token = window.localStorage.getItem("joplin-token");
-export var url = window.localStorage.getItem("joplin-url");
-
 export function getIndex(id: string | null, array: any): number {
   if (!id || !array) return -1;
   return array.findIndex((element: any) => element.id === id);
@@ -61,9 +57,6 @@ export const appReducer = (
   let { activeNote, activeNotebook, activeContent, activeNoteTitle } = state;
   let { activeNotes }: any = state;
   if (type === Types.populateState) {
-    sync = true;
-    token = window.localStorage.getItem("joplin-token");
-    url = window.localStorage.getItem("joplin-url");
     return {
       ...state,
       notebooks: payload.notebooks,
@@ -92,21 +85,11 @@ export const appReducer = (
     };
   }
   if (type === Types.setNotebook) {
-    if (sync) {
-      let activeNotes: Note[] = [];
-      activeNotes = payload.activeNotes;
-      return {
-        ...state,
-        activeNotes,
-        activeNotebook: payload.id,
-        activeNote: activeNotes.length ? activeNotes[0].id : null,
-        activeNoteTitle: activeNotes.length ? activeNotes[0].title : null,
-      };
-    }
     let updateNotebookIdx = getIndex(payload.id, updatedNotebooks);
     let newActiveNote = updatedNotebooks[updateNotebookIdx].notes.length
       ? updatedNotebooks[updateNotebookIdx].notes[0]
       : null;
+    document.title = newActiveNote ? newActiveNote.title : "Notelia";
     return {
       ...state,
       activeNotebook: payload.id,
@@ -121,12 +104,12 @@ export const appReducer = (
     notebookIdx !== -1
       ? getIndex(
           activeNote,
-          sync ? activeNotes : state.notebooks[notebookIdx].notes
+          state.notebooks[notebookIdx].notes
         )
       : -1;
 
   if (type === Types.setContent) {
-    if (!sync) updatedNotebooks[notebookIdx].notes[noteIdx].body = payload.body;
+    updatedNotebooks[notebookIdx].notes[noteIdx].body = payload.body;
     return {
       ...state,
       notebooks: updatedNotebooks,
@@ -136,16 +119,8 @@ export const appReducer = (
   if (type === Types.renameNote) {
     let renameNoteIdx = getIndex(
       payload.id,
-      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
+      updatedNotebooks[notebookIdx].notes
     );
-    if (sync) {
-      activeNotes[renameNoteIdx].title = payload.title;
-      return {
-        ...state,
-        activeNotes: [...activeNotes],
-        activeNoteTitle: payload.title,
-      };
-    }
     updatedNotebooks[notebookIdx].notes[renameNoteIdx].title = payload.title;
     return {
       ...state,
@@ -163,14 +138,8 @@ export const appReducer = (
   if (type === Types.toggleTodo) {
     let toggledNoteIdx = getIndex(
       payload.id,
-      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
+      updatedNotebooks[notebookIdx].notes
     );
-
-    if (sync) {
-      activeNotes[toggledNoteIdx].todo_completed = !activeNotes[toggledNoteIdx]
-        .todo_completed;
-      return { ...state, activeNotes: [...activeNotes] };
-    }
 
     updatedNotebooks[notebookIdx].notes[
       toggledNoteIdx
@@ -184,17 +153,14 @@ export const appReducer = (
   if (type === Types.setNote) {
     let newActiveNoteIdx = getIndex(
       payload.id,
-      sync ? activeNotes : updatedNotebooks[notebookIdx].notes
+      updatedNotebooks[notebookIdx].notes
     );
+    document.title = updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].title ? updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].title : "Notelia";
     return {
       ...state,
       activeNote: payload.id,
-      activeContent: sync
-        ? activeNotes[newActiveNoteIdx].body
-        : updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].body,
-      activeNoteTitle: sync
-        ? activeNotes[newActiveNoteIdx].title
-        : updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].title,
+      activeContent: updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].body,
+      activeNoteTitle: updatedNotebooks[notebookIdx].notes[newActiveNoteIdx].title,
     };
   } else if (type === Types.deleteNotebook) {
     updatedNotebooks = updatedNotebooks.filter(
@@ -211,22 +177,15 @@ export const appReducer = (
   } else if (type === Types.createNote) {
     activeNote = payload.id;
     activeContent = "";
-    if (sync) {
-      activeNotes.push({
-        title: payload.title,
-        id: payload.id,
-        is_todo: payload.is_todo,
-        todo_completed: false,
-        body: "",
-      });
-    } else
-      updatedNotebooks[notebookIdx].notes.push({
+    document.title = payload ? payload.title : "Notelia";
+
+    updatedNotebooks[notebookIdx].notes.push({
         title: payload.title,
         id: activeNote ? activeNote : "",
         is_todo: payload.is_todo,
         todo_completed: false,
         body: "",
-      });
+    });
     return {
       ...state,
       notebooks: updatedNotebooks,
@@ -236,7 +195,7 @@ export const appReducer = (
       activeNoteTitle: payload.title,
     };
   } else if (type === Types.deleteNote) {
-    let notes = sync ? activeNotes : updatedNotebooks[notebookIdx].notes;
+    let notes = updatedNotebooks[notebookIdx].notes;
     let deleteIdx = getIndex(payload.id, notes);
     if (notes.length > 1) {
       if (deleteIdx === notes.length - 1) {
@@ -249,16 +208,6 @@ export const appReducer = (
         activeNoteTitle = notes[deleteIdx + 1].title;
       }
     } else activeNote = activeContent = activeNoteTitle = null;
-    if (sync) {
-      activeNotes.splice(deleteIdx, 1);
-      return {
-        ...state,
-        activeNotes: [...activeNotes],
-        activeNote,
-        activeContent,
-        activeNoteTitle,
-      };
-    }
     updatedNotebooks[notebookIdx].notes.splice(deleteIdx, 1);
     return {
       ...state,
