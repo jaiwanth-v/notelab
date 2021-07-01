@@ -90,14 +90,14 @@ const Note: React.FC<Props> = () => {
 
   let isPreviewScrolling = useRef(false),
     isEditorScrolling = useRef(false);
-  let previewElm = document.querySelector(".markdown-body");
+  let previewElm = document.querySelector(".Markdown");
   let editorElm = document.querySelector(".CodeMirror-vscrollbar");
   useEffect(() => {
     document.title = activeNoteTitle ? activeNoteTitle : "Notelia";
     function onEditorScroll(e: any) {
       if (!isEditorScrolling.current) {
         isPreviewScrolling.current = true;
-        if (!previewElm) previewElm = document.querySelector(".markdown-body");
+        if (!previewElm) previewElm = document.querySelector(".Markdown");
         previewElm!.scrollTop = e.target.scrollTop;
       }
       isEditorScrolling.current = false;
@@ -113,7 +113,7 @@ const Note: React.FC<Props> = () => {
       isPreviewScrolling.current = false;
     }
     if (!previewElm) {
-      previewElm = document.querySelector(".markdown-body");
+      previewElm = document.querySelector(".Markdown");
     }
     if (!editorElm) {
       editorElm = document.querySelector(".CodeMirror-vscrollbar");

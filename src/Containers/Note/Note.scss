@@ -33,7 +33,7 @@
   }
   .workspace {
     display: flex;
-    .markdown-body,
+    .Markdown,
     .code-mirror {
       margin-left: 5px;
       width: 10px;
@@ -47,7 +47,7 @@
   .CodeMirror {
     height: calc(100vh - 100px);
   }
-  .markdown-body {
+  .Markdown {
     font-size: unset !important;
     word-wrap: break-word;
     overflow-y: scroll;
@@ -67,26 +67,30 @@
     padding-bottom: 50px;
   }
   .CodeMirror-vscrollbar::-webkit-scrollbar,
-  .markdown-body::-webkit-scrollbar {
+  .Markdown::-webkit-scrollbar {
     width: 6px;
   }
 
   .CodeMirror-hscrollbar::-webkit-scrollbar,
-  .markdown-body pre::-webkit-scrollbar {
+  .Markdown pre::-webkit-scrollbar {
     height: 9px;
   }
 
   .CodeMirror-vscrollbar::-webkit-scrollbar-track,
   .CodeMirror-hscrollbar::-webkit-scrollbar-track,
-  .markdown-body::-webkit-scrollbar-track,
-  .markdown-body pre::-webkit-scrollbar-track {
+  .Markdown::-webkit-scrollbar-track,
+  .Markdown pre::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+ .workspace .CodeMirror-code pre:last-child {
+    margin-bottom: 80vh;
   }
 
   .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
   .CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
-  .markdown-body::-webkit-scrollbar-thumb,
-  .markdown-body pre::-webkit-scrollbar-thumb {
+  .Markdown::-webkit-scrollbar-thumb,
+  .Markdown pre::-webkit-scrollbar-thumb {
     background: #d0d0d0;
     border-radius: 4px;
     -webkit-border-radius: 4px;
